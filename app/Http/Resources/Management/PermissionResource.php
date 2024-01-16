@@ -18,7 +18,6 @@ class PermissionResource extends JsonResource
         $users = User::permission($this->name)->get();
         return [
             'id' => $this->id,
-            'grouped' => $this->parent . ' - ' . $this->children,
             'parent' => $this->parent,
             'children' => $this->children,
             'name' => $this->name,

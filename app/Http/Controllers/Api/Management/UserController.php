@@ -48,7 +48,6 @@ class UserController extends Controller
 
     public function destroy(User $user, Request $request)
     {
-        abort(401, 'try');
         DB::beginTransaction();
         try {
             if ($user->id === '1') {
@@ -88,7 +87,7 @@ class UserController extends Controller
             if ($request->has('password')) {
                 // Update password
                 $validator = Validator::make($request->only(['password', 'password_confirmation']), [
-                    'password' => 'required|confirmed|min:8|max:20'
+                    'password' => 'required|confirmed|min:6|max:20'
                 ]);
                 if ($validator->fails()) {
                     return response()->json(['status' => false, 'errors' => $validator->errors()->toArray()], 422);
@@ -145,7 +144,7 @@ class UserController extends Controller
                 'name' => 'required|string|min:3|max:30',
                 'username' => 'required|string|min:6|max:20|unique:users,username',
                 'email' => 'required|email|unique:users,email',
-                'password' => 'required|confirmed|min:8|max:20',
+                'password' => 'required|confirmed|min:6|max:20',
                 'role' => 'required|exists:roles,name|not_in:Administrator'
             ]);
 

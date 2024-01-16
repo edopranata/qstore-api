@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Api\Management;
 
 use App\Http\Controllers\Controller;
-use App\Http\Resources\Management\MenuCollection;
 use App\Http\Resources\Management\PermissionCollection;
 use App\Http\Resources\Management\PermissionResource;
 use App\Http\Resources\Management\RoleCollection;
@@ -13,36 +12,63 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Str;
 use Spatie\Permission\Models\Permission;
 
 class PermissionController extends Controller
 {
 
-    private function list(Request $request): \Illuminate\Database\Eloquent\Collection|\Illuminate\Contracts\Pagination\LengthAwarePaginator|array
+    private function list(Request $request)
     {
-        $query = Permission::query()
-            ->when($request->get('sortBy'), function ($query, $sort) {
-                $sortBy = collect(json_decode($sort));
-                return $query->orderBy($sortBy['key'], $sortBy['order']);
+        $all = Permission::all();
+        $parent = $all->unique('parent')->values();
+        return $parent->map(function ($first) use ($all) {
+            return [
+                'id' => $first->id,
+                'label' => $first->parent,
+                'lazy' => true
+            ];
+        });
+    }
+
+    public function index(Request $request)
+    {
+        if ($request->parent) {
+            $all = Permission::all();
+            return $all->where('parent', $request->parent)->unique('children')->values()->map(function ($child) {
+                return [
+                    'id' => $child->id,
+                    'label' => $child->children
+                ];
             });
+        } else if ($request->children) {
+            $query = Permission::query()
+                ->where('children', $request->children)
+                ->when($request->get('sortBy'), function ($query, $sort) {
+                    $sortBy = collect(json_decode($sort));
+                    return $query->orderBy($sortBy['key'], $sortBy['order']);
+                });
 
-        return $query->paginate($request->get('limit', 10));
+            return $request->get('limit', 0) > 0 ? $query->paginate($request->get('limit', 10)) : $query->get();
+        } else {
+            $all = Permission::all();
+            $parent = $all->unique('parent')->values();
+            return $parent->map(function ($first) use ($all) {
+                return [
+                    'id' => $first->id,
+                    'label' => $first->parent,
+                    'lazy' => true
+                ];
+            });
+        }
     }
-    public function index(Request $request): PermissionCollection
-    {
-        $menu = $this->list($request);
 
-        return new PermissionCollection($menu);
-    }
-
-    public function view(string $id): PermissionResource
+    public function view(string $id): PermissionCollection
     {
         $permission = Permission::query()
             ->with(['roles'])
-            ->where('id', $id)->first();
-        if (!$permission) abort(404, 'Not found');
-        return new PermissionResource($permission);
+            ->where('id', $id)->get();
+        if ($permission->count() < 1) abort(404, 'Not found');
+        return new PermissionCollection($permission);
     }
 
     public function sync(Request $request)
@@ -101,9 +127,8 @@ class PermissionController extends Controller
                 }
             }
             DB::commit();
-            $menu = $this->list($request);
+            return $this->list($request);
 
-            return new PermissionCollection($menu);
 
         } catch (\Exception $exception) {
             DB::rollBack();
