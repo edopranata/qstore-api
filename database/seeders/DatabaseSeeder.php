@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\Customer;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Route;
@@ -87,6 +88,11 @@ class DatabaseSeeder extends Seeder
         }
         $this->call([
             MenuSeeder::class,
+            RoleSeeder::class,
+            CarsSeeder::class,
+            CustomersSeeder::class,
+            DriversSeeder::class,
+            AreasSeeder::class,
         ]);
     }
 }
