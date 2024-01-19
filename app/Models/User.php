@@ -4,6 +4,7 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticate;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
@@ -11,7 +12,8 @@ use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticate
 {
-    use HasApiTokens, HasFactory, Notifiable, HasRoles;
+    use HasApiTokens, HasFactory, Notifiable, HasRoles, SoftDeletes;
+
 
     /**
      * The attributes that are mass assignable.
@@ -41,7 +43,9 @@ class User extends Authenticate
      * @var array<string, string>
      */
     protected $casts = [
-        'created_at'        => 'datetime:d-m-Y',
+        'created_at'    => 'datetime:Y-m-d H:i:s',
+        'deleted_at'    => 'datetime:Y-m-d H:i:s',
+        'updated_at'    => 'datetime:Y-m-d H:i:s',
         'email_verified_at' => 'datetime',
         'password'          => 'hashed',
     ];
