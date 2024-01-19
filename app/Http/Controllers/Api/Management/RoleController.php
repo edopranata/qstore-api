@@ -17,7 +17,11 @@ class RoleController extends Controller
 {
     public function index(Request $request): RoleCollection
     {
-        $role = Role::query()->whereNotIn('id', [1])
+        $role = Role::query()
+            ->whereNotIn('id', [1])
+            ->when($request->name, function ($query, $name){
+                $query->where('name', 'like',  "%$name%");
+            })
             ->when($request->get('sortBy'), function ($query, $sort) {
                 $sortBy = collect(json_decode($sort));
                 return $query->orderBy($sortBy['key'], $sortBy['order']);
@@ -96,11 +100,19 @@ class RoleController extends Controller
         }
     }
 
-    public function destroy(Role $role)
+    public function destroy(Role $role, Request $request)
     {
         DB::beginTransaction();
         try {
-            $role->deleteQuietly();
+            $roles = $request->roles_id;
+            if (is_array($roles)) {
+                Role::query()
+                    ->whereIn('id', $request->roles_id)
+                    ->delete();
+            } else {
+                $role->deleteQuietly();
+            }
+
             DB::commit();
 
             return response()->json(['status' => true, 'message' => "Role deleted"], 201);

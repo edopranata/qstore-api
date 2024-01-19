@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Api\Management;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Management\PermissionCollection;
-use App\Http\Resources\Management\PermissionResource;
 use App\Http\Resources\Management\RoleCollection;
 use App\Http\Resources\Management\UserCollection;
 use App\Models\Menu;
@@ -16,20 +15,6 @@ use Spatie\Permission\Models\Permission;
 
 class PermissionController extends Controller
 {
-
-    private function list(Request $request)
-    {
-        $all = Permission::all();
-        $parent = $all->unique('parent')->values();
-        return $parent->map(function ($first) use ($all) {
-            return [
-                'id' => $first->id,
-                'label' => $first->parent,
-                'lazy' => true
-            ];
-        });
-    }
-
     public function index(Request $request)
     {
         if ($request->parent) {
@@ -142,6 +127,19 @@ class PermissionController extends Controller
         }
     }
 
+    private function list(Request $request)
+    {
+        $all = Permission::all();
+        $parent = $all->unique('parent')->values();
+        return $parent->map(function ($first) use ($all) {
+            return [
+                'id' => $first->id,
+                'label' => $first->parent,
+                'lazy' => true
+            ];
+        });
+    }
+
     public function viewRolesUsers(string $id, Request $request): UserCollection|RoleCollection
     {
         $type = $request->get('load');
@@ -153,12 +151,35 @@ class PermissionController extends Controller
         if (str($type)->lower() == 'users') {
 
             $query = User::permission($permission->name)->whereNotIn('id', [1, auth()->id()]);
-            $data = $request->get('limit', 0) > 0 ? $query->paginate($request->get('limit', 10)) : $query->get();
+            $query->when($request->get('name'), function ($query, $search) {
+                return $query->where('name', 'LIKE', "%$search%");
+            })->when($request->get('username'), function ($query, $search) {
+                return $query->where('username', 'LIKE', "%$search%");
+            })->when($request->get('email'), function ($query, $search) {
+                return $query->where('email', 'LIKE', "%$search%");
+            })->when($request->get('role'), function ($query, $search) {
+                if ($search === 'All') {
+                    return $query;
+                } else {
+                    return $query->whereHas('roles', function ($queryRole) use ($search) {
+                        return $queryRole->where('name', $search);
+                    });
+                }
+            })->when($request->get('sortBy'), function ($query, $sort) {
+                $sortBy = collect(json_decode($sort));
+                return $query->orderBy($sortBy['key'], $sortBy['order']);
+            });
+            $data = $query->paginate($request->get('limit', 10));
 
             return new UserCollection($data);
         } else {
+
             $query = $permission->roles();
-            $data = $request->get('limit', 0) > 0 ? $query->paginate($request->get('limit', 10)) : $query->get();
+            $query->when($request->get('sortBy'), function ($query, $sort) {
+                $sortBy = collect(json_decode($sort));
+                return $query->orderBy($sortBy['key'], $sortBy['order']);
+            })->whereNot('id', 1);
+            $data = $query->paginate($request->get('limit', 10));
 
             return new RoleCollection($data);
         }

@@ -17,17 +17,5 @@ class PermissionCollection extends ResourceCollection
         return [
             'data' => PermissionResource::collection($this->collection->all()),
         ];
-
-    }
-    public function with($request)
-    {
-        return [
-            'abilities' => [
-                'canSync' => $request->user()->can('app.management.permissions.syncPermissions'),
-                'canSetToUser' => $request->user()->can('app.management.permissions.setPermissionToUser'),
-                'canSetToRole' => $request->user()->can('app.management.permissions.setPermissionToRole'),
-                'canViewPermission' => $request->user()->can('app.management.permissions.viewPermission'),
-            ]
-        ];
     }
 }

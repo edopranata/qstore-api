@@ -4,7 +4,9 @@ namespace App\Http\Resources\Management;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\ResourceCollection;
+use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
+use function Symfony\Component\Translation\t;
 
 class UserCollection extends ResourceCollection
 {
@@ -22,16 +24,12 @@ class UserCollection extends ResourceCollection
 
     public function with($request)
     {
-        if(!$request->routeIs('app.management.users.index')) return [];
+        if(!$request->routeIs('app.management.users.index')) return [
+            'roles' => Permission::query()->where('id', $request->id)->first()->roles()->whereNot('id', 1)->get()->pluck('name')
+        ];
         $roles = collect([Role::query()->whereNot('id', 1)->get()->pluck('name')])->collapse();
         return [
             'roles' => $roles->all(),
-            'abilities' => [
-                'canCreate' => $request->user()->can('app.management.users.createUser'),
-                'canEdit' => $request->user()->can('app.management.users.updateUser'),
-                'canDelete' => $request->user()->can('app.management.users.deleteUser'),
-                'canReset' => $request->user()->can('app.management.users.resetPassword'),
-            ]
         ];
     }
 }

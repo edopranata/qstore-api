@@ -18,6 +18,8 @@ class RoleResource extends JsonResource
         return [
             'id'  => $this->id,
             'name'  => $this->name,
+            'users_count' => $this->when($request->routeIs('app.management.roles.index'), $this->users->count()),
+            'permissions_count' => $this->when($request->routeIs('app.management.roles.index'), $this->permissions->count()),
             'created_at'  => $this->when($this->created_at, $this->created_at->format('d-m-Y H:i:s')),
         ];
     }
