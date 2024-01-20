@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\Data\CarController;
+use App\Http\Controllers\Api\Data\CustomerController;
 use App\Http\Controllers\Api\Data\DriverController;
 use App\Http\Controllers\Api\Management\MenuController;
 use App\Http\Controllers\Api\Management\PermissionController;
@@ -47,6 +48,12 @@ Route::group(['prefix' => 'masterData', 'as' => 'masterData.'], function (){
         Route::post('/', [DriverController::class, 'store'])->name('createDriver')->middleware('permission:app.masterData.drivers.createDriver');
         Route::patch('/{driver}', [DriverController::class, 'update'])->name('updateDriver')->middleware('permission:app.masterData.drivers.updateDriver');
         Route::delete('/{driver}', [DriverController::class, 'destroy'])->name('deleteDriver')->middleware('permission:app.masterData.drivers.deleteDriver');
+    });
+    Route::group(['prefix' => 'customers', 'as' => 'customers.'], function (){
+        Route::get('', [CustomerController::class, 'index'])->name('index')->middleware('permission:app.masterData.customers.index');
+        Route::post('/', [CustomerController::class, 'store'])->name('createCustomer')->middleware('permission:app.masterData.customers.createCustomer');
+        Route::patch('/{customer}', [CustomerController::class, 'update'])->name('updateCustomer')->middleware('permission:app.masterData.customers.updateCustomer');
+        Route::delete('/{customer}', [CustomerController::class, 'destroy'])->name('deleteCustomer')->middleware('permission:app.masterData.customers.deleteCustomer');
     });
 });
 
