@@ -17,4 +17,9 @@ class Driver extends Model
         'deleted_at'    => 'datetime:Y-m-d H:i:s',
         'updated_at'    => 'datetime:Y-m-d H:i:s',
     ];
+
+    public function user(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
 }

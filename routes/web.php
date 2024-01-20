@@ -44,3 +44,8 @@ Route::get('tos', function (\Illuminate\Http\Request $request) {
 
     ], 201);
 });
+
+Route::get('tes', function (\Illuminate\Http\Request $request){
+    $cars = \App\Models\Car::query()->with('user')->get();
+    return new \App\Http\Resources\Data\Car\CarCollection($cars);
+});

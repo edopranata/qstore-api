@@ -1,6 +1,7 @@
 <?php
 
-use App\Http\Controllers\Api\Data\DataAtmController;
+use App\Http\Controllers\Api\Data\CarController;
+use App\Http\Controllers\Api\Data\DriverController;
 use App\Http\Controllers\Api\Management\MenuController;
 use App\Http\Controllers\Api\Management\PermissionController;
 use App\Http\Controllers\Api\Management\RoleController;
@@ -34,14 +35,26 @@ Route::group(['prefix' => 'management', 'as' => 'management.'], function (){
         Route::delete('/{role}', [RoleController::class, 'destroy'])->name('deleteRole')->middleware('permission:app.management.roles.deleteRole');
     });
 });
-Route::group(['prefix' => 'settings', 'as' => 'settings.'], function (){
-    Route::group(['prefix' => 'menu', 'as' => 'menu.'], function (){
-        Route::get('/', [MenuController::class, 'index'])->name('index')->middleware('permission:app.settings.menu.index');
+Route::group(['prefix' => 'masterData', 'as' => 'masterData.'], function (){
+    Route::group(['prefix' => 'cars', 'as' => 'cars.'], function (){
+        Route::get('', [CarController::class, 'index'])->name('index')->middleware('permission:app.masterData.cars.index');
+        Route::post('/', [CarController::class, 'store'])->name('createCar')->middleware('permission:app.masterData.cars.createCar');
+        Route::patch('/{car}', [CarController::class, 'update'])->name('updateCar')->middleware('permission:app.masterData.cars.updateCar');
+        Route::delete('/{car}', [CarController::class, 'destroy'])->name('deleteCar')->middleware('permission:app.masterData.cars.deleteCar');
+    });
+    Route::group(['prefix' => 'drivers', 'as' => 'drivers.'], function (){
+        Route::get('', [DriverController::class, 'index'])->name('index')->middleware('permission:app.masterData.drivers.index');
+        Route::post('/', [DriverController::class, 'store'])->name('createDriver')->middleware('permission:app.masterData.drivers.createDriver');
+        Route::patch('/{driver}', [DriverController::class, 'update'])->name('updateDriver')->middleware('permission:app.masterData.drivers.updateDriver');
+        Route::delete('/{driver}', [DriverController::class, 'destroy'])->name('deleteDriver')->middleware('permission:app.masterData.drivers.deleteDriver');
     });
 });
 
-Route::group(['prefix' => 'masterData', 'as' => 'masterData.'], function (){
-    Route::group(['prefix' => 'atm', 'as' => 'atm.'], function (){
-        Route::post('', [DataAtmController::class, 'index'])->name('index')->middleware('permission:app.masterData.atm.index');
+Route::group(['prefix' => 'settings', 'as' => 'settings.'], function (){
+    Route::group(['prefix' => 'menu', 'as' => 'menu.'], function (){
+        Route::get('/', [MenuController::class, 'index'])->name('index')->middleware('permission:app.settings.menu.index');
+
     });
 });
+
+
