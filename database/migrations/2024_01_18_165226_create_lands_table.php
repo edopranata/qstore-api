@@ -18,6 +18,7 @@ return new class extends Migration
             $table->integer('trees');
             $table->foreignIdFor(\App\Models\Area::class)->nullable()->constrained()->nullOnDelete()->cascadeOnUpdate();
             $table->foreignIdFor(\App\Models\User::class)->nullable()->constrained()->nullOnDelete()->cascadeOnUpdate();
+            $table->softDeletes();
             $table->timestamps();
         });
     }
