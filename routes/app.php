@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\Data\AreaController;
 use App\Http\Controllers\Api\Data\CarController;
 use App\Http\Controllers\Api\Data\CustomerController;
 use App\Http\Controllers\Api\Data\DriverController;
+use App\Http\Controllers\Api\Data\LandController;
 use App\Http\Controllers\Api\Management\MenuController;
 use App\Http\Controllers\Api\Management\PermissionController;
 use App\Http\Controllers\Api\Management\RoleController;
@@ -61,6 +62,12 @@ Route::group(['prefix' => 'masterData', 'as' => 'masterData.'], function (){
         Route::post('/', [AreaController::class, 'store'])->name('createArea')->middleware('permission:app.masterData.areas.createArea');
         Route::patch('/{area}', [AreaController::class, 'update'])->name('updateArea')->middleware('permission:app.masterData.areas.updateArea');
         Route::delete('/{area}', [AreaController::class, 'destroy'])->name('deleteArea')->middleware('permission:app.masterData.areas.deleteArea');
+    });
+    Route::group(['prefix' => 'lands', 'as' => 'lands.'], function () {
+        Route::get('', [LandController::class, 'index'])->name('index')->middleware('permission:app.masterData.lands.index');
+        Route::post('/', [LandController::class, 'store'])->name('createLand')->middleware('permission:app.masterData.lands.createLand');
+        Route::patch('/{land}', [LandController::class, 'update'])->name('updateLand')->middleware('permission:app.masterData.lands.updateLand');
+        Route::delete('/{land}', [LandController::class, 'destroy'])->name('deleteLand')->middleware('permission:app.masterData.lands.deleteLand');
     });
 });
 
