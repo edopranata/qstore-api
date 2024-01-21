@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\Data\AreaController;
 use App\Http\Controllers\Api\Data\CarController;
 use App\Http\Controllers\Api\Data\CustomerController;
 use App\Http\Controllers\Api\Data\DriverController;
@@ -54,6 +55,12 @@ Route::group(['prefix' => 'masterData', 'as' => 'masterData.'], function (){
         Route::post('/', [CustomerController::class, 'store'])->name('createCustomer')->middleware('permission:app.masterData.customers.createCustomer');
         Route::patch('/{customer}', [CustomerController::class, 'update'])->name('updateCustomer')->middleware('permission:app.masterData.customers.updateCustomer');
         Route::delete('/{customer}', [CustomerController::class, 'destroy'])->name('deleteCustomer')->middleware('permission:app.masterData.customers.deleteCustomer');
+    });
+    Route::group(['prefix' => 'areas', 'as' => 'areas.'], function () {
+        Route::get('', [AreaController::class, 'index'])->name('index')->middleware('permission:app.masterData.areas.index');
+        Route::post('/', [AreaController::class, 'store'])->name('createArea')->middleware('permission:app.masterData.areas.createArea');
+        Route::patch('/{area}', [AreaController::class, 'update'])->name('updateArea')->middleware('permission:app.masterData.areas.updateArea');
+        Route::delete('/{area}', [AreaController::class, 'destroy'])->name('deleteArea')->middleware('permission:app.masterData.areas.deleteArea');
     });
 });
 

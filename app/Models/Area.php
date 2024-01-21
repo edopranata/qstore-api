@@ -22,4 +22,9 @@ class Area extends Model
     {
         return $this->hasMany(Land::class);
     }
+
+    public function user(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
 }
