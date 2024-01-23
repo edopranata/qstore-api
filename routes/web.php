@@ -1,6 +1,5 @@
 <?php
 
-use App\Http\Resources\Management\RoleCollection;
 use Illuminate\Support\Facades\Route;
 use Spatie\Permission\Models\Role;
 
@@ -45,7 +44,4 @@ Route::get('tos', function (\Illuminate\Http\Request $request) {
     ], 201);
 });
 
-Route::get('tes', function (\Illuminate\Http\Request $request){
-    $cars = \App\Models\Car::query()->with('user')->get();
-    return new \App\Http\Resources\Data\Car\CarCollection($cars);
-});
+Route::get('tes', [\App\Http\Controllers\Api\Transaction\DeliveryOrderController::class, 'index']);
