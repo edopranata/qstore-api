@@ -24,7 +24,7 @@ class DeliveryOrderFactory extends Factory
         $gross_total = $net_weight * $net_price;
         $net_total = $net_weight * $margin;
         return [
-            'customer_id' => Customer::query()->inRandomOrder()->first()->id,
+            'customer_id' => Customer::query()->where('type', 'collector')->inRandomOrder()->first()->id,
             'user_id' => 1,
             'delivery_date' => Carbon::now()->subDays(rand(10, 30)),
             'net_weight' => $net_weight,

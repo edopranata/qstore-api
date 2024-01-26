@@ -74,6 +74,10 @@ Route::group(['prefix' => 'masterData', 'as' => 'masterData.'], function () {
 Route::group(['prefix' => 'transaction', 'as' => 'transaction.'], function () {
     Route::group(['prefix' => 'deliveryOrders', 'as' => 'deliveryOrders.'], function () {
         Route::get('', [DeliveryOrderController::class, 'index'])->name('index')->middleware('permission:app.transaction.deliveryOrders.index');
+        Route::post('/', [DeliveryOrderController::class, 'store'])->name('createDeliveryOrder')->middleware('permission:app.transaction.deliveryOrders.createDeliveryOrder');
+        Route::patch('/{delivery}', [DeliveryOrderController::class, 'update'])->name('updateDeliveryOrder')->middleware('permission:app.transaction.deliveryOrders.updateDeliveryOrder');
+        Route::delete('/{delivery}', [DeliveryOrderController::class, 'destroy'])->name('deleteDeliveryOrder')->middleware('permission:app.transaction.deliveryOrders.deleteDeliveryOrder');
+
     });
 });
 Route::group(['prefix' => 'settings', 'as' => 'settings.'], function () {

@@ -20,22 +20,22 @@ class DeliveryResource extends JsonResource
             'customer_id' => $this->whenLoaded('customer', $this->customer->id),
             'customer_name' => $this->whenLoaded('customer', $this->customer->name),
             'created_by' => $this->whenLoaded('user', $this->user->name),
-            'delivery_date' => $this->whenNotNull($this->delivery_date->format('d-m-Y H:i:s')),
+            'delivery_date' => $this->whenNotNull($this->delivery_date->format('Y/m/d H:i:s')),
             'net_weight' => $this->net_weight,
             'net_price' => $this->net_price,
             'margin' => $this->margin,
             'gross_total' => $this->gross_total,
             'net_total' => $this->net_total,
-            'invoice_status' => $this->whenNotNull($this->invoice_status ? $this->invoice_status->format('d-m-Y H:i:s') : null),
-            'income_status' => $this->whenNotNull($this->income_status ? $this->income_status->format('d-m-Y H:i:s') : null),
-            'created_at' => $this->whenNotNull($this->created_at->format('d-m-Y H:i:s')),
+            'invoice_status' => $this->whenNotNull($this->invoice_status ? $this->invoice_status->format('Y/m/d H:i:s') : null),
+            'income_status' => $this->whenNotNull($this->income_status ? $this->income_status->format('Y/m/d H:i:s') : null),
+            'created_at' => $this->whenNotNull($this->created_at->format('Y/m/d H:i:s')),
         ];
     }
 
     public function with(Request $request)
     {
         return [
-            'meta' => $request->count()
+            'meta' => $request->all()
         ];
     }
 }
