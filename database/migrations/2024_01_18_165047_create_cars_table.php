@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('cars', function (Blueprint $table) {
             $table->id();
+            $table->enum('status', ['yes', 'no'])->default('yes'); // yes = mobil pribadi
             $table->string('name');
             $table->string('no_pol');
             $table->string('description')->nullable();
