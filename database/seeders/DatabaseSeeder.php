@@ -93,7 +93,8 @@ class DatabaseSeeder extends Seeder
             DriversSeeder::class,
             AreasSeeder::class,
             DeliveryOrderSeeder::class,
-            TradingSeeder::class
+            TradingSeeder::class,
+            TradingDetailsSeeder::class,
         ]);
     }
 }

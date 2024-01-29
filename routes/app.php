@@ -11,6 +11,7 @@ use App\Http\Controllers\Api\Management\RoleController;
 use App\Http\Controllers\Api\Management\UserController;
 use App\Http\Controllers\Api\Transaction\DeliveryOrderController;
 use App\Http\Controllers\Api\Transaction\TradeBuyController;
+use App\Http\Controllers\Api\Transaction\TradeBuyDetailsController;
 use Illuminate\Support\Facades\Route;
 
 Route::group(['prefix' => 'management', 'as' => 'management.'], function () {
@@ -76,10 +77,13 @@ Route::group(['prefix' => 'transaction', 'as' => 'transaction.'], function () {
     Route::group(['prefix' => 'pembelianSawit', 'as' => 'pembelianSawit.'], function () {
         Route::get('', [TradeBuyController::class, 'index'])->name('index')->middleware('permission:app.transaction.pembelianSawit.index');
         Route::post('/', [TradeBuyController::class, 'store'])->name('createTransaction')->middleware('permission:app.transaction.pembelianSawit.createTransaction');
-        Route::get('/{trade}/details', [TradeBuyController::class, 'show'])->name('viewDetailsTransaction')->middleware('permission:app.transaction.pembelianSawit.viewDetailsTransaction');
-
         Route::patch('/{trade}', [TradeBuyController::class, 'update'])->name('updateTransaction')->middleware('permission:app.transaction.pembelianSawit.updateTransaction');
         Route::delete('/{trade}', [TradeBuyController::class, 'destroy'])->name('deleteTransaction')->middleware('permission:app.transaction.pembelianSawit.deleteTransaction');
+
+        Route::get('/{trade}/details', [TradeBuyController::class, 'show'])->name('viewDetailsTransaction')->middleware('permission:app.transaction.pembelianSawit.viewDetailsTransaction');
+        Route::post('/{trade}/details', [TradeBuyDetailsController::class, 'store'])->name('createDetailsTransaction')->middleware('permission:app.transaction.pembelianSawit.createDetailsTransaction');
+        Route::delete('/{trade}/details/{details}', [TradeBuyDetailsController::class, 'destroy'])->scopeBindings()->name('deleteDetailsTransaction')->middleware('permission:app.transaction.pembelianSawit.deleteDetailsTransaction');
+        Route::patch('/{trade}/details/{details}', [TradeBuyDetailsController::class, 'update'])->scopeBindings()->name('updateDetailsTransaction')->middleware('permission:app.transaction.pembelianSawit.updateDetailsTransaction');
     });
     Route::group(['prefix' => 'deliveryOrders', 'as' => 'deliveryOrders.'], function () {
         Route::get('', [DeliveryOrderController::class, 'index'])->name('index')->middleware('permission:app.transaction.deliveryOrders.index');
