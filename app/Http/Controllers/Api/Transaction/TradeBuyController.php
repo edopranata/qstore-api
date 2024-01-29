@@ -6,10 +6,13 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\Data\Car\CarResource;
 use App\Http\Resources\Data\Driver\DriverResource;
 use App\Http\Resources\Transaction\Buy\BuyPalmCollection;
+use App\Http\Resources\Transaction\Buy\BuyPalmDetailsCollection;
 use App\Http\Resources\Transaction\Buy\BuyPalmResource;
 use App\Models\Car;
+use App\Models\Customer;
 use App\Models\Driver;
 use App\Models\Trading;
+use App\Models\TradingDetails;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -82,9 +85,30 @@ class TradeBuyController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(Request $request, Trading $trade)
     {
-        //
+//        if ($request->has('page')) {
+        $query = TradingDetails::query()
+            ->where('trading_id', $trade->id)
+            ->when($request->get('sortBy'), function ($query, $sort) {
+                $sortBy = collect(json_decode($sort));
+                return $query->orderBy($sortBy['key'], $sortBy['order']);
+            })->when(!$request->get('sortBy'), function ($query) {
+                return $query->orderByDesc('id');
+            });
+
+        $details = $query->paginate($request->get('limit', 10));
+//            return new BuyPalmDetailsCollection($details);
+//        } else {
+        $customers = Customer::query()
+            ->where('type', 'farmers')->get();
+
+        return response()->json([
+            'trading' => new BuyPalmResource($trade),
+            'customers' => DriverResource::collection($customers),
+            'details' => new BuyPalmDetailsCollection($details),
+        ], 201);
+//        }
     }
 
     /**
@@ -133,6 +157,7 @@ class TradeBuyController extends Controller
         try {
 
             $trade->delete();
+            $trade->details()->delete();
 
             DB::commit();
             return response()->json(['status' => true], 201);

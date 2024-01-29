@@ -22,4 +22,9 @@ class Customer extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    public function order(): \Illuminate\Database\Eloquent\Relations\MorphOne
+    {
+        return $this->morphOne(DeliveryOrder::class, 'customer');
+    }
 }

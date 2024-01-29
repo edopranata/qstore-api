@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\Customer;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -16,8 +17,16 @@ class TradingDetailsFactory extends Factory
      */
     public function definition(): array
     {
+        $weight = random_int(1000, 3000);
+        $one = [2020, 2080, 2130, 2180, 2260, 2290, 2310, 2350, 2400];
+        $two = [10, 20, 30, 40, 50, 60, 70, 80, 90];
+        $price = $one[array_rand($one)] + $two[array_rand($two)];
         return [
-            //
+            'customer_id' => Customer::query()->where('type', 'farmers')->inRandomOrder()->first()->id,
+            'user_id' => rand(1, 4),
+            'weight' => $weight,
+            'price' => $price,
+            'total' => $weight * $price,
         ];
     }
 }

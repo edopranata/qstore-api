@@ -23,7 +23,7 @@ class DeliveryOrder extends Model
 
     public function customer()
     {
-        return $this->belongsTo(Customer::class);
+        return $this->morphTo();
     }
 
     public function user()

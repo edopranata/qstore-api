@@ -23,8 +23,10 @@ class DeliveryOrderFactory extends Factory
         $margin = $this->faker->randomElement([40, 45, 35]);
         $gross_total = $net_weight * $net_price;
         $net_total = $net_weight * $margin;
+        $customer = new Customer();
         return [
             'customer_id' => Customer::query()->where('type', 'collector')->inRandomOrder()->first()->id,
+            'customer_type' => get_class($customer),
             'user_id' => 1,
             'delivery_date' => Carbon::now()->subDays(rand(10, 30)),
             'net_weight' => $net_weight,

@@ -20,6 +20,7 @@ class BuyPalmResource extends JsonResource
             'driver_name' => $this->whenLoaded('driver', $this->driver->name, ''),
             'car_id' => $this->whenLoaded('car', $this->car->id),
             'car_no_pol' => $this->whenLoaded('car', $this->car->no_pol, ''),
+            'details' => $this->whenLoaded('details', $this->driver->name, ''),
             'created_by' => $this->whenLoaded('user', $this->user->name),
             'trade_date' => $this->whenNotNull($this->trade_date->format('Y/m/d H:i:s')),
             'trade_cost' => $this->trade_cost,

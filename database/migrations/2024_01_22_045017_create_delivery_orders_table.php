@@ -12,7 +12,8 @@ return new class extends Migration {
     {
         Schema::create('delivery_orders', function (Blueprint $table) {
             $table->id();
-            $table->foreignIdFor(\App\Models\Customer::class)->nullable()->constrained()->nullOnDelete()->cascadeOnDelete();
+            $table->unsignedBigInteger('customer_id')->nullable();
+            $table->string('customer_type')->nullable();
             $table->foreignIdFor(\App\Models\User::class)->nullable()->constrained()->nullOnDelete()->cascadeOnDelete();
 
             $table->dateTime('delivery_date');

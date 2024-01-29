@@ -14,11 +14,13 @@ return new class extends Migration {
             $table->id();
             $table->foreignIdFor(\App\Models\Trading::class)->nullable()->constrained()->cascadeOnUpdate()->nullOnDelete();
             $table->foreignIdFor(\App\Models\Customer::class)->nullable()->constrained()->cascadeOnUpdate()->nullOnDelete();
+            $table->foreignIdFor(\App\Models\User::class)->nullable()->constrained()->cascadeOnUpdate()->nullOnDelete();
 
             $table->dateTime('trade_date');
             $table->integer('weight');
             $table->double('price');
             $table->double('total');
+            $table->softDeletes();
             $table->dateTime('farmer_status')->nullable();
             $table->timestamps();
         });

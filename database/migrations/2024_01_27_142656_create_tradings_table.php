@@ -16,6 +16,7 @@ return new class extends Migration {
             $table->foreignIdFor(\App\Models\Car::class)->nullable()->constrained()->cascadeOnUpdate()->nullOnDelete();
             $table->foreignIdFor(\App\Models\User::class)->nullable()->constrained()->cascadeOnUpdate()->nullOnDelete();
 
+            $table->string('name')->default('Farmers');
             $table->dateTime('trade_date');
             $table->double('trade_cost')->default(0); // Uang Jalan
 

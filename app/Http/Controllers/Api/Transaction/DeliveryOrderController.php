@@ -21,6 +21,7 @@ class DeliveryOrderController extends Controller
     public function index(Request $request)
     {
         $query = DeliveryOrder::query()
+            ->where('customer_type', get_class(new Customer()))
             ->when($request->get('sortBy'), function ($query, $sort) {
                 $sortBy = collect(json_decode($sort));
                 return $query->orderBy($sortBy['key'], $sortBy['order']);
@@ -64,6 +65,7 @@ class DeliveryOrderController extends Controller
                 ->create([
                     'delivery_date' => Carbon::createFromFormat('Y/m/d H:i:s', $request->delivery_date . ' ' . $now->format('H:i:s')),
                     'customer_id' => $request->customer_id,
+                    'customer_type' => get_class(new Customer()),
                     'net_weight' => $request->net_weight,
                     'net_price' => $request->net_price,
                     'gross_total' => $request->gross_total,
@@ -73,7 +75,7 @@ class DeliveryOrderController extends Controller
                 ]);
 
             DB::commit();
-
+//            return  $delivery->load(['user', 'customer']);
             return new DeliveryResource($delivery->load(['user', 'customer']));
 
         } catch (\Exception $exception) {
@@ -114,6 +116,7 @@ class DeliveryOrderController extends Controller
             $delivery->update([
                 'delivery_date' => Carbon::createFromFormat('Y/m/d H:i:s', $request->delivery_date . ' ' . $now->format('H:i:s')),
                 'customer_id' => $request->customer_id,
+                'customer_type' => get_class(new Customer()),
                 'net_weight' => $request->net_weight,
                 'net_price' => $request->net_price,
                 'gross_total' => $request->gross_total,
