@@ -87,7 +87,6 @@ class TradeBuyController extends Controller
      */
     public function show(Request $request, Trading $trade)
     {
-//        if ($request->has('page')) {
         $query = TradingDetails::query()
             ->where('trading_id', $trade->id)
             ->when($request->get('sortBy'), function ($query, $sort) {
@@ -98,8 +97,6 @@ class TradeBuyController extends Controller
             });
 
         $details = $query->paginate($request->get('limit', 10));
-//            return new BuyPalmDetailsCollection($details);
-//        } else {
         $customers = Customer::query()
             ->where('type', 'farmers')->get();
 
@@ -108,7 +105,6 @@ class TradeBuyController extends Controller
             'customers' => DriverResource::collection($customers),
             'details' => new BuyPalmDetailsCollection($details),
         ], 201);
-//        }
     }
 
     /**
