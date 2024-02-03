@@ -12,14 +12,13 @@ return new class extends Migration {
     {
         Schema::create('plantation_details', function (Blueprint $table) {
             $table->id();
+            $table->foreignIdFor(\App\Models\Plantation::class)->nullable()->constrained()->cascadeOnUpdate()->nullOnDelete();
             $table->foreignIdFor(\App\Models\User::class)->nullable()->constrained()->cascadeOnUpdate()->nullOnDelete();
             $table->foreignIdFor(\App\Models\Land::class)->nullable()->constrained()->cascadeOnUpdate()->nullOnDelete();
 
-            $table->integer('wide');
-            $table->integer('trees');
-            $table->double('net_price')->default(0);
-            $table->double('wide_avg_price')->default(0);
-            $table->double('trees_avg_price')->default(0);
+            $table->double('wide')->default(0)->comment('Luas lahan saat transaksi');
+            $table->integer('trees')->default(0)->comment('Jumlah pohon saat transaksi');
+            $table->softDeletes();
             $table->timestamps();
         });
     }

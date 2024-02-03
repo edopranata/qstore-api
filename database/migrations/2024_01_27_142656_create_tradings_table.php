@@ -16,22 +16,31 @@ return new class extends Migration {
             $table->foreignIdFor(\App\Models\Car::class)->nullable()->constrained()->cascadeOnUpdate()->nullOnDelete();
             $table->foreignIdFor(\App\Models\User::class)->nullable()->constrained()->cascadeOnUpdate()->nullOnDelete();
 
-            $table->string('name')->default('Farmers');
+            $table->string('name')->default('Trading');
             $table->dateTime('trade_date');
-            $table->double('trade_cost')->default(0); // Uang Jalan
+            $table->double('trade_cost')->default(0)->comment('Uang jalan'); // Uang Jalan
 
             // Timbangan Kebuh
-            $table->double('customer_average_price')->default(0); // Rata-rata Harga beli dari petani
-            $table->double('customer_total_price')->default(0); // Total Harga beli dari petani
-            $table->double('customer_total_weight')->default(0); // Total Timbangan kebun
+            $table->double('customer_average_price')->default(0)->comment('Rata-rata Harga beli dari petani'); // Rata-rata Harga beli dari petani
+            $table->double('customer_total_price')->default(0)->comment('Total Harga beli dari petani'); // Total Harga beli dari petani
+            $table->double('customer_total_weight')->default(0)->comment('Total Timbangan kebun'); // Total Timbangan kebun
 
             // Delivery Order
-            $table->double('margin')->default(0);
+            $table->double('margin')->default(40)->comment('Margin untuk Delivery Order');
 
             // Timbangan Pabrik
-            $table->double('net_weight')->default(0); // Timbangan pabrik
-            $table->double('net_total')->default(0); // Pendapatan Bersih
+            $table->double('net_weight')->default(0)->comment('Berat timbangan pabrik'); // Timbangan pabrik
+            $table->double('net_price')->default(0)->comment('Harga Pabrik'); // Pendapatan Bersih
+            $table->double('gross_total')->default(0)->comment('Pendapatan kotor'); // Pendapatan Bersih
 
+            $table->double('driver_fee')->default(100)->comment('Uang supir Rp / Kg');
+            $table->double('car_fee')->default(80)->comment('Amprah Mobil Rp/ Kg');
+
+            $table->double('net_income')->default(0)->comment('Pendapatan bersih setelah di kurangi semua biaya (Amprah, Upah Supir, Uang Jalan)');
+
+            $table->dateTime('driver_status')->nullable();
+            $table->dateTime('car_status')->nullable();
+            $table->dateTime('income_status')->nullable();
             $table->softDeletes();
             $table->timestamps();
         });

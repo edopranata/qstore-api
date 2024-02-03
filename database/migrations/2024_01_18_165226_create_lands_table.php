@@ -14,8 +14,8 @@ return new class extends Migration
         Schema::create('lands', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->integer('wide');
-            $table->integer('trees');
+            $table->integer('wide')->comment('Luas lahan (Ha)');
+            $table->integer('trees')->comment('Jumlah pohon sawit (btg)');
             $table->foreignIdFor(\App\Models\Area::class)->nullable()->constrained()->nullOnDelete()->cascadeOnUpdate();
             $table->foreignIdFor(\App\Models\User::class)->nullable()->constrained()->nullOnDelete()->cascadeOnUpdate();
             $table->softDeletes();

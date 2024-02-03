@@ -5,11 +5,11 @@ use App\Http\Controllers\Api\Data\CarController;
 use App\Http\Controllers\Api\Data\CustomerController;
 use App\Http\Controllers\Api\Data\DriverController;
 use App\Http\Controllers\Api\Data\LandController;
-use App\Http\Controllers\Api\Management\MenuController;
 use App\Http\Controllers\Api\Management\PermissionController;
 use App\Http\Controllers\Api\Management\RoleController;
 use App\Http\Controllers\Api\Management\UserController;
 use App\Http\Controllers\Api\Transaction\DeliveryOrderController;
+use App\Http\Controllers\Api\Transaction\PlantationController;
 use App\Http\Controllers\Api\Transaction\TradeBuyController;
 use App\Http\Controllers\Api\Transaction\TradeBuyDetailsController;
 use Illuminate\Support\Facades\Route;
@@ -79,12 +79,21 @@ Route::group(['prefix' => 'transaction', 'as' => 'transaction.'], function () {
         Route::post('/', [TradeBuyController::class, 'store'])->name('createTransaction')->middleware('permission:app.transaction.pembelianSawit.createTransaction');
         Route::patch('/{trade}', [TradeBuyController::class, 'update'])->name('updateTransaction')->middleware('permission:app.transaction.pembelianSawit.updateTransaction');
         Route::delete('/{trade}', [TradeBuyController::class, 'destroy'])->name('deleteTransaction')->middleware('permission:app.transaction.pembelianSawit.deleteTransaction');
-
+        Route::patch('/{trade}/details', [TradeBuyController::class, 'updateFactory'])->name('createFactoryTransaction')->middleware('permission:app.transaction.pembelianSawit.createFactoryTransaction');
         Route::get('/{trade}/details', [TradeBuyController::class, 'show'])->name('viewDetailsTransaction')->middleware('permission:app.transaction.pembelianSawit.viewDetailsTransaction');
+
         Route::post('/{trade}/details', [TradeBuyDetailsController::class, 'store'])->name('createDetailsTransaction')->middleware('permission:app.transaction.pembelianSawit.createDetailsTransaction');
         Route::delete('/{trade}/details/{details}', [TradeBuyDetailsController::class, 'destroy'])->scopeBindings()->name('deleteDetailsTransaction')->middleware('permission:app.transaction.pembelianSawit.deleteDetailsTransaction');
         Route::patch('/{trade}/details/{details}', [TradeBuyDetailsController::class, 'update'])->scopeBindings()->name('updateDetailsTransaction')->middleware('permission:app.transaction.pembelianSawit.updateDetailsTransaction');
     });
+
+    Route::group(['prefix' => 'hasilKebun', 'as' => 'hasilKebun.'], function () {
+        Route::get('', [PlantationController::class, 'index'])->name('index')->middleware('permission:app.transaction.hasilKebun.index');
+        Route::post('/', [PlantationController::class, 'store'])->name('createHasilKebun')->middleware('permission:app.transaction.hasilKebun.createHasilKebun');
+        Route::patch('/{plantation}', [PlantationController::class, 'update'])->name('updateHasilKebun')->middleware('permission:app.transaction.hasilKebun.updateHasilKebun');
+        Route::delete('/{plantation}', [PlantationController::class, 'destroy'])->name('deleteHasilKebun')->middleware('permission:app.transaction.hasilKebun.deleteHasilKebun');
+    });
+
     Route::group(['prefix' => 'deliveryOrders', 'as' => 'deliveryOrders.'], function () {
         Route::get('', [DeliveryOrderController::class, 'index'])->name('index')->middleware('permission:app.transaction.deliveryOrders.index');
         Route::post('/', [DeliveryOrderController::class, 'store'])->name('createDeliveryOrder')->middleware('permission:app.transaction.deliveryOrders.createDeliveryOrder');
@@ -92,11 +101,11 @@ Route::group(['prefix' => 'transaction', 'as' => 'transaction.'], function () {
         Route::delete('/{delivery}', [DeliveryOrderController::class, 'destroy'])->name('deleteDeliveryOrder')->middleware('permission:app.transaction.deliveryOrders.deleteDeliveryOrder');
     });
 });
-Route::group(['prefix' => 'settings', 'as' => 'settings.'], function () {
-    Route::group(['prefix' => 'menu', 'as' => 'menu.'], function () {
-        Route::get('/', [MenuController::class, 'index'])->name('index')->middleware('permission:app.settings.menu.index');
-
-    });
-});
+//Route::group(['prefix' => 'settings', 'as' => 'settings.'], function () {
+//    Route::group(['prefix' => 'menu', 'as' => 'menu.'], function () {
+//        Route::get('/', [MenuController::class, 'index'])->name('index')->middleware('permission:app.settings.menu.index');
+//
+//    });
+//});
 
 

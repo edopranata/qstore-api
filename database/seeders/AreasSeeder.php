@@ -5,7 +5,6 @@ namespace Database\Seeders;
 use App\Models\Area;
 use App\Models\Land;
 use App\Models\User;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 class AreasSeeder extends Seeder
@@ -15,12 +14,12 @@ class AreasSeeder extends Seeder
      */
     public function run(): void
     {
-        Area::factory(rand(3, 7))
+        Area::factory(rand(3, 5))
             ->create([
                 'user_id' => User::query()->first()->id,
             ])->each(function ($area) {
                 Land::factory()
-                    ->count(rand(1,5))
+                    ->count(rand(1, 3))
                     ->create([
                         'area_id' => $area->id
                     ]);

@@ -17,11 +17,11 @@ return new class extends Migration {
             $table->foreignIdFor(\App\Models\User::class)->nullable()->constrained()->cascadeOnUpdate()->nullOnDelete();
 
             $table->dateTime('trade_date');
-            $table->integer('weight');
-            $table->double('price');
-            $table->double('total');
+            $table->integer('weight')->comment('Timbangan kebun');
+            $table->double('price')->comment('harga beli dari petani (Rp)');
+            $table->double('total')->comment('Total diterima oleh petani');
             $table->softDeletes();
-            $table->dateTime('farmer_status')->nullable();
+            $table->dateTime('farmer_status')->nullable()->comment('Tanggal Invoice petani');
             $table->timestamps();
         });
     }

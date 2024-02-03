@@ -19,9 +19,9 @@ class LandResource extends JsonResource
             'name' => $this->name,
             'wide' => $this->wide,
             'trees' => $this->trees,
-            'area_id' => $this->whenLoaded('area', $this->area->id),
-            'area' => $this->whenLoaded('area', $this->area->name),
-            'created_by' => $this->whenLoaded('user', $this->user->name),
+            'area_id' => $this->whenLoaded('area', $this->area?->id),
+            'area' => $this->whenLoaded('area', $this->area?->name),
+            'created_by' => $this->whenLoaded('user', $this->user?->name),
             'created_at' => $this->created_at->format('d-m-Y H:i:s'),
         ];
     }

@@ -39,4 +39,9 @@ class Trading extends Model
         return $this->belongsTo(Driver::class);
     }
 
+    public function order(): \Illuminate\Database\Eloquent\Relations\MorphOne
+    {
+        return $this->morphOne(DeliveryOrder::class, 'customer');
+    }
+
 }

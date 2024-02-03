@@ -18,13 +18,13 @@ return new class extends Migration {
 
             $table->dateTime('delivery_date');
 
-            $table->double('net_weight')->default(0);
-            $table->double('net_price')->default(0);
-            $table->double('margin')->default(0);
-            $table->double('gross_total')->default(0);
-            $table->double('net_total')->default(0);
-            $table->dateTime('invoice_status')->nullable();
-            $table->dateTime('income_status')->nullable();
+            $table->double('net_weight')->default(0)->comment('Berat bersih timbangan pabrik (kg)');
+            $table->double('net_price')->default(0)->comment('Harga beli pabrik (Rp)');
+            $table->double('margin')->default(0)->comment('Margin / pendapatan DO (Rp)');
+            $table->double('gross_total')->default(0)->comment('Pendapatan Kotor  (Rp. Berat * Harga Pabrik)');
+            $table->double('net_total')->default(0)->comment('Pendapatan Bersih (Rp. Berat * Margin)');
+            $table->dateTime('invoice_status')->nullable()->comment('Tanggal invoice');
+            $table->dateTime('income_status')->nullable()->comment('Tanggal uang masuk dari pabrik');
             $table->softDeletes();
             $table->timestamps();
         });

@@ -5,7 +5,7 @@ namespace App\Http\Resources\Transaction\Plantation;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class PlantationColelction extends JsonResource
+class PlantationDetailResource extends JsonResource
 {
     /**
      * Transform the resource into an array.

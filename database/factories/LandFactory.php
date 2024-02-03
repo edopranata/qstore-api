@@ -17,10 +17,10 @@ class LandFactory extends Factory
      */
     public function definition(): array
     {
-        $wide = rand(3, 15);
+        $wide = rand(1, 10);
         return [
             'user_id'   => User::query()->first()->id,
-            'name'  => $this->faker->unique()->name(),
+            'name' => $this->faker->unique()->city(),
             'wide'  => $wide,
             'trees' => $wide * 120,
         ];

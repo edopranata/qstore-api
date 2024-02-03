@@ -95,6 +95,8 @@ class DatabaseSeeder extends Seeder
             DeliveryOrderSeeder::class,
             TradingSeeder::class,
             TradingDetailsSeeder::class,
+            PlantationSeeder::class,
+            PlantationDetailsSeeder::class,
         ]);
     }
 }

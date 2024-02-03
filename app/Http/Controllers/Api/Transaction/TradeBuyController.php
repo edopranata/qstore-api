@@ -113,20 +113,22 @@ class TradeBuyController extends Controller
     public function update(Request $request, Trading $trade)
     {
         $now = Carbon::now();
+
+        $validator = Validator::make($request->only([
+            'trade_date', 'trade_cost', 'car_id', 'driver_id',
+        ]), [
+            'trade_date' => 'required|date|before_or_equal:' . $now->toDateString(),
+            'trade_cost' => 'required|numeric|min:1',
+            'car_id' => 'required|exists:cars,id',
+            'driver_id' => 'required|exists:cars,id',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['status' => false, 'errors' => $validator->errors()->toArray()], 422);
+        }
+
         DB::beginTransaction();
         try {
-            $validator = Validator::make($request->only([
-                'trade_date', 'trade_cost', 'car_id', 'driver_id',
-            ]), [
-                'trade_date' => 'required|date|before_or_equal:' . $now->toDateString(),
-                'trade_cost' => 'required|numeric|min:1',
-                'car_id' => 'required|exists:cars,id',
-                'driver_id' => 'required|exists:cars,id',
-            ]);
-
-            if ($validator->fails()) {
-                return response()->json(['status' => false, 'errors' => $validator->errors()->toArray()], 422);
-            }
 
             $trade->update([
                 'trade_date' => Carbon::createFromFormat('Y/m/d H:i:s', $request->trade_date . ' ' . $now->format('H:i:s')),
@@ -135,6 +137,64 @@ class TradeBuyController extends Controller
                 'trade_cost' => $request->trade_cost,
             ]);
 
+            DB::commit();
+
+            return response()->json(['status' => true], 201);
+
+        } catch (\Exception $exception) {
+            abort(403, $exception->getCode() . ' ' . $exception->getMessage());
+        }
+    }
+
+    public function updateFactory(Request $request, Trading $trade)
+    {
+        $validator = Validator::make($request->only([
+            'net_weight', 'net_price', 'car_fee', 'driver_fee'
+        ]), [
+            'net_weight' => 'required|numeric|min:1',
+            'net_price' => 'required|numeric|min:1',
+            'car_fee' => 'required|numeric|min:1',
+            'driver_fee' => 'required|numeric|min:1',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['status' => false, 'errors' => $validator->errors()->toArray()], 422);
+        }
+
+        $gross_total = $request->net_weight * $request->net_price;
+        $driver_fee = $request->driver_fee * $request->net_weight;
+        $car_fee = $request->car_fee * $request->net_weight;
+        $customer_total_price = $trade->customer_total_price;
+        $trade_cost = $trade->trade_cost;
+        $net_margin = $request->net_price - $trade->customer_average_price;
+        $cost = $driver_fee + $car_fee + $customer_total_price + $trade_cost;
+        $net_income = $gross_total - $cost;
+        DB::beginTransaction();
+        try {
+
+            $trade->update([
+                'margin' => $net_margin,
+                'net_weight' => $request->net_weight,
+                'net_price' => $request->net_price,
+                'gross_total' => $gross_total,
+                'driver_fee' => $driver_fee,
+                'car_fee' => $car_fee,
+                'net_income' => $net_income,
+            ]);
+
+            $margin = 40;
+            $net_price = $trade->net_price + $margin;
+            $trade->order()
+                ->create([
+                    'user_id' => auth()->id(),
+                    'delivery_date' => $trade->trade_date,
+                    'net_weight' => $trade->net_weight,
+                    'net_price' => $net_price,
+                    'margin' => $margin,
+                    'gross_total' => $net_price * $trade->net_weight,
+                    'net_total' => $margin * $trade->net_weight,
+                    'invoice_status' => now(),
+                ]);
             DB::commit();
 
             return response()->json(['status' => true], 201);

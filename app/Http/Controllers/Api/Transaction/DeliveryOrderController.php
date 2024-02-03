@@ -21,7 +21,6 @@ class DeliveryOrderController extends Controller
     public function index(Request $request)
     {
         $query = DeliveryOrder::query()
-            ->where('customer_type', get_class(new Customer()))
             ->when($request->get('sortBy'), function ($query, $sort) {
                 $sortBy = collect(json_decode($sort));
                 return $query->orderBy($sortBy['key'], $sortBy['order']);
