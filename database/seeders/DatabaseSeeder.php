@@ -89,17 +89,6 @@ class DatabaseSeeder extends Seeder
             MenuSeeder::class,
             RoleSeeder::class,
             SettingSeeder::class,
-            CarsSeeder::class,
-            CustomersSeeder::class,
-            DriversSeeder::class,
-            AreasSeeder::class,
-            DeliveryOrderSeeder::class,
-            TradingSeeder::class,
-            TradingDetailsSeeder::class,
-            PlantationSeeder::class,
-            PlantationDetailsSeeder::class,
-            LoanSeeder::class,
-            LoanDetailsSeeder::class,
         ]);
     }
 }
