@@ -23,8 +23,13 @@ return new class extends Migration {
             $table->double('trees_total')->default(0)->comment('Total pohon (sum details)');
             $table->integer('net_weight')->default(0)->comment('Berat timbangan pabrik (kg)');
             $table->double('net_price')->default(0)->comment('Harga jual ke DO (Rp)');
-            $table->double('net_total')->default(0)->comment('Pendapatan kebun');
+            $table->double('net_total')->default(0)->comment('Pendapatan kotor kebun');
 
+            $table->double('driver_fee')->default(100)->comment('Uang supir Rp / Kg');
+            $table->double('car_fee')->default(80)->comment('Amprah Mobil Rp/ Kg');
+
+            $table->double('net_income')->default(0)->comment('Pendapatan bersih setelah di kurangi semua biaya (Amprah, Upah Supir, Uang Jalan)');
+            $table->dateTime('invoice_status')->nullable();
             $table->softDeletes();
             $table->timestamps();
         });

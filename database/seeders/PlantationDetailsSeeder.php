@@ -24,22 +24,39 @@ class PlantationDetailsSeeder extends Seeder
                     'trees' => $land->trees
                 ]);
             }
-            $one = [2020, 2080, 2130, 2180, 2260, 2290, 2310, 2350, 2400];
-            $two = [10, 20, 30, 40, 50, 60, 70, 80, 90];
-            $price = $one[array_rand($one)] + $two[array_rand($two)];
 
             $details = $plantation->details();
+
+            $one = [2020, 2080, 2130, 2180, 2260, 2290, 2310, 2350, 2400];
+            $two = [10, 20, 30, 40, 50, 60, 70, 80, 90];
+
+            $price = $one[array_rand($one)] + $two[array_rand($two)];
+            $trade_cost = 270000;
             $net_weight = rand(10, 20) * $details->sum('trees');
 
+            $driver_fee = 20;
+            $car_fee = 80;
+
+            $driver_cost = $driver_fee * $net_weight;
+            $car_cost = $car_fee * $net_weight;
+
+            $net_total = $price * $net_weight;
+
+            $gross_total = $trade_cost + $driver_cost + $car_cost;
+
+            $net_income = $net_total - $gross_total;
             $plantation->update([
+                'trade_cost' => $trade_cost,
                 'net_weight' => $net_weight,
                 'net_price' => $price,
-                'net_total' => $price * $net_weight,
+                'net_total' => $net_total,
                 'wide_total' => $details->sum('wide'),
                 'trees_total' => $details->sum('trees'),
+                'net_income' => $net_income
             ]);
-            $margin = 40;
+            $margin = 25;
             $net_price = $plantation->net_price + $margin;
+
             $plantation->order()
                 ->create([
                     'user_id' => $plantation->user_id,

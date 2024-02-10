@@ -26,14 +26,14 @@ return new class extends Migration {
             $table->double('customer_total_weight')->default(0)->comment('Total Timbangan kebun'); // Total Timbangan kebun
 
             // Delivery Order
-            $table->double('margin')->default(40)->comment('Margin untuk Delivery Order');
+            $table->double('margin')->default(0)->comment('Margin untuk Delivery Order');
 
             // Timbangan Pabrik
             $table->double('net_weight')->default(0)->comment('Berat timbangan pabrik'); // Timbangan pabrik
             $table->double('net_price')->default(0)->comment('Harga Pabrik'); // Pendapatan Bersih
             $table->double('gross_total')->default(0)->comment('Pendapatan kotor'); // Pendapatan Bersih
 
-            $table->double('driver_fee')->default(100)->comment('Uang supir Rp / Kg');
+            $table->double('driver_fee')->default(20)->comment('Uang supir Rp / Kg');
             $table->double('car_fee')->default(80)->comment('Amprah Mobil Rp/ Kg');
 
             $table->double('net_income')->default(0)->comment('Pendapatan bersih setelah di kurangi semua biaya (Amprah, Upah Supir, Uang Jalan)');
@@ -41,6 +41,7 @@ return new class extends Migration {
             $table->dateTime('driver_status')->nullable();
             $table->dateTime('car_status')->nullable();
             $table->dateTime('income_status')->nullable();
+            $table->dateTime('trade_status')->nullable();
             $table->softDeletes();
             $table->timestamps();
         });

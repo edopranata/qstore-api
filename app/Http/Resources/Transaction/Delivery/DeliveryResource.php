@@ -17,6 +17,7 @@ class DeliveryResource extends JsonResource
 
         return [
             'id' => $this->id,
+            'customer_type' => $this->customer_type,
             'customer_id' => $this->whenLoaded('customer', $this->customer->id),
             'customer_name' => $this->whenLoaded('customer', $this->customer->name),
             'created_by' => $this->whenLoaded('user', $this->user->name),

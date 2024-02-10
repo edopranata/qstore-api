@@ -88,6 +88,7 @@ class DatabaseSeeder extends Seeder
         $this->call([
             MenuSeeder::class,
             RoleSeeder::class,
+            SettingSeeder::class,
             CarsSeeder::class,
             CustomersSeeder::class,
             DriversSeeder::class,
@@ -97,6 +98,8 @@ class DatabaseSeeder extends Seeder
             TradingDetailsSeeder::class,
             PlantationSeeder::class,
             PlantationDetailsSeeder::class,
+            LoanSeeder::class,
+            LoanDetailsSeeder::class,
         ]);
     }
 }

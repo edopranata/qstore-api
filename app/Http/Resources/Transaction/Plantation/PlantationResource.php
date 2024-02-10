@@ -26,9 +26,13 @@ class PlantationResource extends JsonResource
             'net_weight' => $this->net_weight,
             'net_price' => $this->net_price,
             'net_total' => $this->net_total,
+            'net_income' => $this->net_income,
+            'driver_fee' => $this->driver_fee,
+            'car_fee' => $this->car_fee,
             'wide_total' => $this->wide_total,
             'trees_total' => $this->trees_total,
             'created_at' => $this->whenNotNull($this->created_at->format('Y/m/d H:i:s')),
+            'invoice' => $this->invoice_status?->format('Y/m/d H:i:s'),
             'details' => PlantationDetailResource::collection($this->whenLoaded('details')),
         ];
     }

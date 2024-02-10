@@ -20,7 +20,7 @@ class DeliveryOrderFactory extends Factory
     {
         $net_weight = rand(8000, 14000);
         $net_price = rand(21, 25) * 25 * 4;
-        $margin = $this->faker->randomElement([40, 45, 35]);
+        $margin = 25;
         $gross_total = $net_weight * $net_price;
         $net_total = $net_weight * $margin;
         $customer = new Customer();

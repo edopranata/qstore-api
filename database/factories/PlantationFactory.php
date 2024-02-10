@@ -22,7 +22,6 @@ class PlantationFactory extends Factory
             'car_id' => Car::query()->inRandomOrder()->first()->id,
             'driver_id' => Driver::query()->inRandomOrder()->first()->id,
             'user_id' => rand(1, 5),
-            'trade_cost' => 270000,
         ];
     }
 }

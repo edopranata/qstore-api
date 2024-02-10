@@ -44,4 +44,9 @@ Route::get('tos', function (\Illuminate\Http\Request $request) {
     ], 201);
 });
 
-Route::get('tes', [\App\Http\Controllers\Api\Transaction\DeliveryOrderController::class, 'index']);
+Route::get('tes', function () {
+//    $car = \App\Models\Driver::query()->with('loan')->select('id', 'name', \Illuminate\Support\Facades\DB::raw('"driver" as type'))->get();
+//    $customer = \App\Models\Customer::query()->with('loan')->select('id', 'name', 'type')->get();
+    $lands = \App\Models\Land::query()->with(['plantation.details'])->get();
+    return $lands;
+});

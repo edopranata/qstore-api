@@ -3,8 +3,10 @@
 namespace App\Http\Resources;
 
 use App\Models\Menu;
+use App\Models\Setting;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Collection;
 
 class UserResource extends JsonResource
 {
@@ -26,12 +28,13 @@ class UserResource extends JsonResource
                 'photo_url'     => $this->photo_url ?? asset('/avatar.svg'),
             ],
             'routes'        => $permissions->pluck('name'),
+            'setting' => $this->getSettings(),
             'menu'          => UserMenuResource::collection($this->getMenu($permissions))
         ];
 
     }
 
-    public function with($request)
+    public function with($request): array
     {
         return [
             'status' => [
@@ -41,7 +44,7 @@ class UserResource extends JsonResource
         ];
     }
 
-    private function getMenu($permissions)
+    private function getMenu($permissions): Collection|array
     {
         return Menu::query()
             ->whereNull('menu_id')
@@ -49,6 +52,17 @@ class UserResource extends JsonResource
                 $menu->whereIn('name', $permissions->pluck('name'));
             })
             ->get();
+    }
+
+    private function getSettings(): Collection
+    {
+        $settings = Setting::all();
+
+        return collect($settings)->mapWithKeys(function ($item, int $key) {
+            return [$item['name'] => $item['value']];
+        });
+
+
     }
 
 }

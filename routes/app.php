@@ -5,9 +5,13 @@ use App\Http\Controllers\Api\Data\CarController;
 use App\Http\Controllers\Api\Data\CustomerController;
 use App\Http\Controllers\Api\Data\DriverController;
 use App\Http\Controllers\Api\Data\LandController;
+use App\Http\Controllers\Api\Invoice\InvoiceDeliveryOrderController;
+use App\Http\Controllers\Api\Loan\LoanController;
 use App\Http\Controllers\Api\Management\PermissionController;
 use App\Http\Controllers\Api\Management\RoleController;
 use App\Http\Controllers\Api\Management\UserController;
+use App\Http\Controllers\Api\Report\Plantation\PlantationDetailReport;
+use App\Http\Controllers\Api\Report\Plantation\PlantationReport;
 use App\Http\Controllers\Api\Transaction\DeliveryOrderController;
 use App\Http\Controllers\Api\Transaction\PlantationController;
 use App\Http\Controllers\Api\Transaction\TradeBuyController;
@@ -73,6 +77,13 @@ Route::group(['prefix' => 'masterData', 'as' => 'masterData.'], function () {
         Route::delete('/{land}', [LandController::class, 'destroy'])->name('deleteLand')->middleware('permission:app.masterData.lahan.deleteLand');
     });
 });
+Route::group(['prefix' => 'pinjaman', 'as' => 'pinjaman.'], function () {
+    Route::group(['prefix' => 'dataPinjaman', 'as' => 'dataPinjaman.'], function () {
+        Route::get('', [LoanController::class, 'index'])->name('index')->middleware('permission:app.pinjaman.dataPinjaman.index');
+
+    });
+
+});
 Route::group(['prefix' => 'transaction', 'as' => 'transaction.'], function () {
     Route::group(['prefix' => 'pembelianSawit', 'as' => 'pembelianSawit.'], function () {
         Route::get('', [TradeBuyController::class, 'index'])->name('index')->middleware('permission:app.transaction.pembelianSawit.index');
@@ -101,11 +112,19 @@ Route::group(['prefix' => 'transaction', 'as' => 'transaction.'], function () {
         Route::delete('/{delivery}', [DeliveryOrderController::class, 'destroy'])->name('deleteDeliveryOrder')->middleware('permission:app.transaction.deliveryOrders.deleteDeliveryOrder');
     });
 });
-//Route::group(['prefix' => 'settings', 'as' => 'settings.'], function () {
-//    Route::group(['prefix' => 'menu', 'as' => 'menu.'], function () {
-//        Route::get('/', [MenuController::class, 'index'])->name('index')->middleware('permission:app.settings.menu.index');
-//
-//    });
-//});
+Route::group(['prefix' => 'invoice', 'as' => 'invoice.'], function () {
+    Route::group(['prefix' => 'deliveryOrder', 'as' => 'deliveryOrder.'], function () {
+        Route::get('/', [InvoiceDeliveryOrderController::class, 'index'])->name('index')->middleware('permission:app.invoice.deliveryOrder.index');
+    });
+});
+
+Route::group(['prefix' => 'laporan', 'as' => 'laporan.'], function () {
+    Route::group(['prefix' => 'hasilKebun', 'as' => 'hasilKebun.'], function () {
+        Route::get('/', PlantationReport::class)->name('index')->middleware('permission:app.laporan.hasilKebun.index');
+    });
+    Route::group(['prefix' => 'hasilLahan', 'as' => 'hasilLahan.'], function () {
+        Route::get('/', PlantationDetailReport::class)->name('index')->middleware('permission:app.laporan.hasilLahan.index');
+    });
+});
 
 

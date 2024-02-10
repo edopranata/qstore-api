@@ -10,6 +10,7 @@ use App\Http\Resources\Transaction\Buy\BuyPalmDetailsCollection;
 use App\Http\Resources\Transaction\Buy\BuyPalmResource;
 use App\Models\Car;
 use App\Models\Customer;
+use App\Models\DeliveryOrder;
 use App\Models\Driver;
 use App\Models\Trading;
 use App\Models\TradingDetails;
@@ -53,12 +54,14 @@ class TradeBuyController extends Controller
         DB::beginTransaction();
         try {
             $validator = Validator::make($request->only([
-                'trade_date', 'trade_cost', 'car_id', 'driver_id',
+                'trade_date', 'trade_cost', 'car_id', 'driver_id', 'car_fee', 'driver_fee'
             ]), [
                 'trade_date' => 'required|date|before_or_equal:' . $now->toDateString(),
                 'trade_cost' => 'required|numeric|min:1',
                 'car_id' => 'required|exists:cars,id',
                 'driver_id' => 'required|exists:cars,id',
+                'car_fee' => 'required|numeric|min:1',
+                'driver_fee' => 'required|numeric|min:1',
             ]);
 
             if ($validator->fails()) {
@@ -71,6 +74,8 @@ class TradeBuyController extends Controller
                     'car_id' => $request->car_id,
                     'driver_id' => $request->driver_id,
                     'trade_cost' => $request->trade_cost,
+                    'car_fee' => $request->car_fee,
+                    'driver_fee' => $request->driver_fee,
                     'user_id' => auth()->id()
                 ]);
 
@@ -87,24 +92,30 @@ class TradeBuyController extends Controller
      */
     public function show(Request $request, Trading $trade)
     {
-        $query = TradingDetails::query()
-            ->where('trading_id', $trade->id)
-            ->when($request->get('sortBy'), function ($query, $sort) {
-                $sortBy = collect(json_decode($sort));
-                return $query->orderBy($sortBy['key'], $sortBy['order']);
-            })->when(!$request->get('sortBy'), function ($query) {
-                return $query->orderByDesc('id');
-            });
+        if ($request->has('page')) {
+            $query = TradingDetails::query()
+                ->where('trading_id', $trade->id)
+                ->when($request->get('sortBy'), function ($query, $sort) {
+                    $sortBy = collect(json_decode($sort));
+                    return $query->orderBy($sortBy['key'], $sortBy['order']);
+                })->when(!$request->get('sortBy'), function ($query) {
+                    return $query->orderByDesc('id');
+                });
 
-        $details = $query->paginate($request->get('limit', 10));
-        $customers = Customer::query()
-            ->where('type', 'farmers')->get();
+            $details = $query->paginate($request->get('limit', 10));
+            $customers = Customer::query()
+                ->where('type', 'farmers')->get();
 
-        return response()->json([
-            'trading' => new BuyPalmResource($trade),
-            'customers' => DriverResource::collection($customers),
-            'details' => new BuyPalmDetailsCollection($details),
-        ], 201);
+            return response()->json([
+                'customers' => DriverResource::collection($customers),
+                'details' => new BuyPalmDetailsCollection($details),
+            ], 201);
+        } else {
+            return response()->json([
+                'trading' => new BuyPalmResource($trade),
+            ], 201);
+        }
+
     }
 
     /**
@@ -115,12 +126,14 @@ class TradeBuyController extends Controller
         $now = Carbon::now();
 
         $validator = Validator::make($request->only([
-            'trade_date', 'trade_cost', 'car_id', 'driver_id',
+            'trade_date', 'trade_cost', 'car_id', 'driver_id', 'car_fee', 'driver_fee'
         ]), [
             'trade_date' => 'required|date|before_or_equal:' . $now->toDateString(),
             'trade_cost' => 'required|numeric|min:1',
             'car_id' => 'required|exists:cars,id',
             'driver_id' => 'required|exists:cars,id',
+            'car_fee' => 'required|numeric|min:1',
+            'driver_fee' => 'required|numeric|min:1',
         ]);
 
         if ($validator->fails()) {
@@ -135,6 +148,8 @@ class TradeBuyController extends Controller
                 'car_id' => $request->car_id,
                 'driver_id' => $request->driver_id,
                 'trade_cost' => $request->trade_cost,
+                'car_fee' => $request->car_fee,
+                'driver_fee' => $request->driver_fee,
             ]);
 
             DB::commit();
@@ -177,23 +192,25 @@ class TradeBuyController extends Controller
                 'net_weight' => $request->net_weight,
                 'net_price' => $request->net_price,
                 'gross_total' => $gross_total,
-                'driver_fee' => $driver_fee,
-                'car_fee' => $car_fee,
+                'driver_fee' => $request->driver_fee,
+                'car_fee' => $request->car_fee,
                 'net_income' => $net_income,
             ]);
 
             $margin = 40;
             $net_price = $trade->net_price + $margin;
-            $trade->order()
-                ->create([
-                    'user_id' => auth()->id(),
+            DeliveryOrder::query()
+                ->updateOrCreate([
+                    'customer_id' => $trade->id,
+                    'customer_type' => get_class(new Trading())
+                ], [
                     'delivery_date' => $trade->trade_date,
+                    'user_id' => auth()->id(),
                     'net_weight' => $trade->net_weight,
                     'net_price' => $net_price,
                     'margin' => $margin,
                     'gross_total' => $net_price * $trade->net_weight,
                     'net_total' => $margin * $trade->net_weight,
-                    'invoice_status' => now(),
                 ]);
             DB::commit();
 

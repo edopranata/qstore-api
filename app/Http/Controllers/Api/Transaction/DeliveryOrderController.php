@@ -31,7 +31,7 @@ class DeliveryOrderController extends Controller
 
         $deliveries = $query->paginate($request->get('limit', 10));
 
-        $customers = Customer::query()->where('type', 'collector')->get();
+        $customers = Customer::query()->with('loan')->where('type', 'collector')->get();
         return response()->json([
             'deliveries' => new DeliveryCollection($deliveries),
             'customers' => CustomerResource::collection($customers)

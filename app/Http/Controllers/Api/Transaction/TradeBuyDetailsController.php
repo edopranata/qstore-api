@@ -44,15 +44,25 @@ class TradeBuyDetailsController extends Controller
                 ]);
 
             $detail = $trade->details()->get();
+            $customer_average_price = $detail->avg('price');
+            $customer_total_price = $detail->sum('total');
+            $customer_total_weight = $detail->sum('weight');
 
             $trade->update([
-                'customer_average_price' => $detail->avg('price'),
-                'customer_total_price' => $detail->sum('total'),
-                'customer_total_weight' => $detail->sum('weight')
+                'customer_average_price' => $customer_average_price,
+                'customer_total_price' => $customer_total_price,
+                'customer_total_weight' => $customer_total_weight,
+                'margin' => 0,
+                'net_weight' => 0,
+                'net_price' => 0,
+                'gross_total' => 0,
+                'net_income' => 0,
             ]);
 
+            $trade->order()->delete();
 
             DB::commit();
+
             return new BuyPalmDetailsResource($trading);
 
         } catch (\Exception $exception) {
@@ -93,8 +103,15 @@ class TradeBuyDetailsController extends Controller
             $trade->update([
                 'customer_average_price' => $detail->avg('price'),
                 'customer_total_price' => $detail->sum('total'),
-                'customer_total_weight' => $detail->sum('weight')
+                'customer_total_weight' => $detail->sum('weight'),
+                'margin' => 0,
+                'net_weight' => 0,
+                'net_price' => 0,
+                'gross_total' => 0,
+                'net_income' => 0,
             ]);
+
+            $trade->order()->delete();
 
             DB::commit();
 
@@ -116,10 +133,11 @@ class TradeBuyDetailsController extends Controller
 
             $details->delete();
             $detail = $trade->details()->get();
+
             $trade->update([
-                'customer_average_price' => $detail->avg('price'),
-                'customer_total_price' => $detail->sum('total'),
-                'customer_total_weight' => $detail->sum('weight')
+                'customer_average_price' => $detail->count() > 0 ? $detail->avg('price') : 0,
+                'customer_total_price' => $detail->count() > 0 ? $detail->sum('total') : 0,
+                'customer_total_weight' => $detail->count() > 0 ? $detail->sum('weight') : 0,
             ]);
 
             DB::commit();
