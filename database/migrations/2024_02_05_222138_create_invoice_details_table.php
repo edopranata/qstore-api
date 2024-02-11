@@ -12,8 +12,13 @@ return new class extends Migration {
     {
         Schema::create('invoice_details', function (Blueprint $table) {
             $table->id();
-            $table->foreignIdFor(\App\Models\Invoice::class)->nullable()->constrained()->nullOnDelete()->cascadeOnDelete();
-            $table->nullableMorphs('transaction');
+            $table->foreignIdFor(\App\Models\Invoice::class)->nullable()->constrained()->nullOnDelete()->cascadeOnUpdate();
+            $table->foreignIdFor(\App\Models\DeliveryOrder::class)->nullable()->constrained()->nullOnDelete()->cascadeOnUpdate();
+            $table->foreignIdFor(\App\Models\Plantation::class)->nullable()->constrained()->nullOnDelete()->cascadeOnUpdate();
+            $table->foreignIdFor(\App\Models\Trading::class)->nullable()->constrained()->nullOnDelete()->cascadeOnUpdate();
+            $table->foreignIdFor(\App\Models\TradingDetails::class)->nullable()->constrained()->nullOnDelete()->cascadeOnUpdate();
+            $table->foreignIdFor(\App\Models\Driver::class)->nullable()->constrained()->nullOnDelete()->cascadeOnUpdate();
+            $table->softDeletes();
             $table->timestamps();
         });
     }

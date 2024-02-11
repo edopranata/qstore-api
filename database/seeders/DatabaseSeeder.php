@@ -81,7 +81,7 @@ class DatabaseSeeder extends Seeder
 
         $user->assignRole($administrator);
 
-        $users = User::factory()->count(rand(100, 500))->create();
+        $users = User::factory()->count(rand(3, 10))->create();
         foreach ($users as $assign) {
             $assign->assignRole($roles[rand(0,1)]);
         }

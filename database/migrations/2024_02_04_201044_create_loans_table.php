@@ -12,6 +12,7 @@ return new class extends Migration {
     {
         Schema::create('loans', function (Blueprint $table) {
             $table->id();
+            $table->foreignIdFor(\App\Models\User::class)->nullable()->constrained()->cascadeOnUpdate()->nullOnDelete();
             $table->nullableMorphs('person');
             $table->double('balance');
             $table->softDeletes();

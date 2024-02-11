@@ -195,6 +195,7 @@ class TradeBuyController extends Controller
                 'driver_fee' => $request->driver_fee,
                 'car_fee' => $request->car_fee,
                 'net_income' => $net_income,
+                'trade_status' => now(),
             ]);
 
             $margin = 40;

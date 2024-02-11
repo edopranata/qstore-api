@@ -12,6 +12,7 @@ return new class extends Migration {
     {
         Schema::create('invoice_loans', function (Blueprint $table) {
             $table->id();
+            $table->foreignIdFor(\App\Models\Invoice::class)->nullable()->constrained()->nullOnDelete()->cascadeOnUpdate();
             $table->foreignIdFor(\App\Models\LoanDetails::class)->nullable()->constrained()->nullOnDelete()->cascadeOnUpdate();
             $table->softDeletes();
             $table->timestamps();

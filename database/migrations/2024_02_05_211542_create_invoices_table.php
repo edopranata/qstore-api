@@ -13,11 +13,12 @@ return new class extends Migration {
         Schema::create('invoices', function (Blueprint $table) {
             $table->id();
             $table->nullableMorphs('customer');
+            $table->string('to')->nullable();
             $table->foreignIdFor(\App\Models\User::class)->nullable()->constrained()->nullOnDelete()->cascadeOnUpdate();
             $table->unsignedInteger('sequence');
             $table->string('invoice_number');
-            $table->double('total');
-            $table->double('net_total');
+            $table->dateTime('trade_date');
+            $table->string('type');
             $table->softDeletes();
             $table->timestamps();
         });

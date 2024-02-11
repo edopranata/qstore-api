@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasOneThrough;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -22,5 +23,10 @@ class LoanDetails extends Model
     public function transaction(): MorphTo
     {
         return $this->morphTo();
+    }
+
+    public function invoice(): HasOneThrough
+    {
+        return $this->hasOneThrough(Invoice::class, InvoiceLoan::class, 'loan_details_id', 'id', 'id', 'invoice_id');
     }
 }

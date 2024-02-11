@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\Data\CarController;
 use App\Http\Controllers\Api\Data\CustomerController;
 use App\Http\Controllers\Api\Data\DriverController;
 use App\Http\Controllers\Api\Data\LandController;
+use App\Http\Controllers\Api\Invoice\InvoiceDataController;
 use App\Http\Controllers\Api\Invoice\InvoiceDeliveryOrderController;
 use App\Http\Controllers\Api\Loan\LoanController;
 use App\Http\Controllers\Api\Management\PermissionController;
@@ -80,9 +81,11 @@ Route::group(['prefix' => 'masterData', 'as' => 'masterData.'], function () {
 Route::group(['prefix' => 'pinjaman', 'as' => 'pinjaman.'], function () {
     Route::group(['prefix' => 'dataPinjaman', 'as' => 'dataPinjaman.'], function () {
         Route::get('', [LoanController::class, 'index'])->name('index')->middleware('permission:app.pinjaman.dataPinjaman.index');
-
     });
-
+    Route::group(['prefix' => 'pinjamanBaru', 'as' => 'pinjamanBaru.'], function () {
+        Route::get('', [LoanController::class, 'create'])->name('index')->middleware('permission:app.pinjaman.pinjamanBaru.index');
+        Route::post('', [LoanController::class, 'store'])->name('simpanPinjamanBaru')->middleware('permission:app.pinjaman.pinjamanBaru.simpanPinjamanBaru');
+    });
 });
 Route::group(['prefix' => 'transaction', 'as' => 'transaction.'], function () {
     Route::group(['prefix' => 'pembelianSawit', 'as' => 'pembelianSawit.'], function () {
@@ -113,9 +116,16 @@ Route::group(['prefix' => 'transaction', 'as' => 'transaction.'], function () {
     });
 });
 Route::group(['prefix' => 'invoice', 'as' => 'invoice.'], function () {
-    Route::group(['prefix' => 'deliveryOrder', 'as' => 'deliveryOrder.'], function () {
-        Route::get('/', [InvoiceDeliveryOrderController::class, 'index'])->name('index')->middleware('permission:app.invoice.deliveryOrder.index');
+    Route::group(['prefix' => 'invoiceData', 'as' => 'invoiceData.'], function () {
+        Route::get('/', [InvoiceDataController::class, 'index'])->name('index')->middleware('permission:app.invoice.invoiceData.index');
+        Route::get('/{invoice:invoice_number}/print', [InvoiceDataController::class, 'show'])->name('printInvoice')->middleware('permission:app.invoice.invoiceData.printInvoice');
     });
+
+    Route::group(['prefix' => 'buatInvoiceDO', 'as' => 'buatInvoiceDO.'], function () {
+        Route::get('/', [InvoiceDeliveryOrderController::class, 'index'])->name('index')->middleware('permission:app.invoice.buatInvoiceDO.index');
+        Route::post('/', [InvoiceDeliveryOrderController::class, 'store'])->name('simpanInvoiceDO')->middleware('permission:app.invoice.buatInvoiceDO.simpanInvoiceDO');
+    });
+
 });
 
 Route::group(['prefix' => 'laporan', 'as' => 'laporan.'], function () {

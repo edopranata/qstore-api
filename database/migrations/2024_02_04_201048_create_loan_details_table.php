@@ -12,7 +12,8 @@ return new class extends Migration {
     {
         Schema::create('loan_details', function (Blueprint $table) {
             $table->id();
-            $table->foreignIdFor(\App\Models\Loan::class);
+            $table->foreignIdFor(\App\Models\Loan::class)->nullable()->constrained()->cascadeOnUpdate()->nullOnDelete();
+            $table->foreignIdFor(\App\Models\User::class)->nullable()->constrained()->cascadeOnUpdate()->nullOnDelete();
             $table->dateTime('trade_date');
             $table->double('opening_balance');
             $table->double('balance');
