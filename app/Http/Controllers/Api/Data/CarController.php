@@ -6,10 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\Data\Car\CarCollection;
 use App\Http\Resources\Data\Car\CarResource;
 use App\Models\Car;
-use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 
 class CarController extends Controller
@@ -20,12 +18,14 @@ class CarController extends Controller
     public function index(Request $request)
     {
         $query = Car::query()
-            ->whereNotIn('id', [1, auth()->id()])
             ->when($request->get('name'), function ($query, $search) {
                 return $query->where('name', 'LIKE', "%$search%");
             })
             ->when($request->get('no_pol'), function ($query, $search) {
                 return $query->where('no_pol', 'LIKE', "%$search%");
+            })
+            ->when($request->get('status'), function ($query, $search) {
+                return $query->where('status', $search);
             })
             ->when($request->get('year'), function ($query, $search) {
                 return $query->where('year', 'LIKE', "%$search%");
@@ -51,11 +51,13 @@ class CarController extends Controller
         DB::beginTransaction();
         try {
             $validator = Validator::make($request->only([
+                'status',
                 'name',
                 'no_pol',
                 'description',
                 'year',
             ]), [
+                'status' => 'required|string|in:yes,no',
                 'name' => 'required|string|min:3|max:30',
                 'no_pol' => 'required|string|max:11|unique:cars,no_pol',
             ]);
@@ -66,6 +68,7 @@ class CarController extends Controller
 
             $car = Car::query()
                 ->create([
+                    'status' => $request->status,
                     'name' => $request->name,
                     'no_pol' => $request->no_pol,
                     'description' => $request->description,
@@ -102,7 +105,9 @@ class CarController extends Controller
                 'no_pol',
                 'description',
                 'year',
+                'status',
             ]), [
+                'status' => 'required|string|in:yes,no',
                 'name' => 'required|string|min:3|max:30',
                 'no_pol' => 'required|string|max:11|unique:cars,no_pol,' . $request->id,
             ]);
@@ -112,6 +117,7 @@ class CarController extends Controller
             }
 
             $car->update([
+                'status' => $request->status,
                 'name' => $request->name,
                 'no_pol' => $request->no_pol,
                 'description' => $request->description,
