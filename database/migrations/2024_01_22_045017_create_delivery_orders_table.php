@@ -15,7 +15,7 @@ return new class extends Migration {
             $table->nullableMorphs('customer');
 //            $table->unsignedBigInteger('customer_id')->nullable();
 //            $table->string('customer_type')->nullable();
-            $table->foreignIdFor(\App\Models\User::class)->nullable()->constrained()->nullOnDelete()->cascadeOnDelete();
+            $table->foreignIdFor(\App\Models\User::class)->nullable()->constrained()->nullOnDelete()->cascadeOnUpdate();
 
             $table->dateTime('delivery_date');
 
