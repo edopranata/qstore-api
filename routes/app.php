@@ -81,6 +81,9 @@ Route::group(['prefix' => 'masterData', 'as' => 'masterData.'], function () {
 Route::group(['prefix' => 'pinjaman', 'as' => 'pinjaman.'], function () {
     Route::group(['prefix' => 'dataPinjaman', 'as' => 'dataPinjaman.'], function () {
         Route::get('', [LoanController::class, 'index'])->name('index')->middleware('permission:app.pinjaman.dataPinjaman.index');
+        Route::post('/{loan}/add', [LoanController::class, 'addLoan'])->name('tambahPinjaman')->middleware('permission:app.pinjaman.dataPinjaman.tambahPinjaman');
+        Route::post('/{loan}/installment', [LoanController::class, 'installmentLoan'])->name('angsurPinjaman')->middleware('permission:app.pinjaman.dataPinjaman.angsurPinjaman');
+
     });
     Route::group(['prefix' => 'pinjamanBaru', 'as' => 'pinjamanBaru.'], function () {
         Route::get('', [LoanController::class, 'create'])->name('index')->middleware('permission:app.pinjaman.pinjamanBaru.index');

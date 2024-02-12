@@ -11,6 +11,7 @@ use App\Models\Invoice;
 use App\Models\Loan;
 use App\Models\LoanDetails;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -23,7 +24,7 @@ class LoanController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request)
+    public function index(Request $request): JsonResponse
     {
         if ($request->has('details') && $request->has('customer_id') && $request->has('type')) {
             $person = $request->type === 'driver' ? get_class(new Driver()) : get_class(new Customer());
@@ -57,9 +58,61 @@ class LoanController extends Controller
 
     }
 
-    public function printInvoice(Invoice $invoice)
+    public function installmentLoan(Loan $loan, Request $request): InvoiceResource|JsonResponse|null
     {
-        return $invoice;
+        $now = now();
+
+        $type = $request->customer_type === 'Driver' ? 'drivers' : 'customers';
+        $customer_type = $request->type === 'driver' ? new Driver() : new Customer();
+        $trade_date = $request->trade_date ? Carbon::parse($request->trade_date . ' ' . $now->format('H:i:s')) : $now;
+
+        $validator = Validator::make($request->only([
+            'customer_id',
+            'installment',
+        ]), [
+            'customer_id' => 'required|exists:' . $type . ',id',
+            'installment' => 'required|numeric',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['status' => false, 'errors' => $validator->errors()->toArray()], 422);
+        }
+
+        $data['user_id'] = auth()->id();
+        $data['opening_balance'] = $loan->balance;
+        $data['balance'] = $request->installment;
+        $data['trade_date'] = $request->trade_date ?? now();
+
+        return $this->extracted($loan, $data, $trade_date, $request, $customer_type);
+    }
+
+    public function addLoan(Loan $loan, Request $request): InvoiceResource|JsonResponse|null
+    {
+        $now = now();
+
+        $type = $request->customer_type === 'Driver' ? 'drivers' : 'customers';
+        $customer_type = $request->type === 'driver' ? new Driver() : new Customer();
+        $trade_date = $request->trade_date ? Carbon::parse($request->trade_date . ' ' . $now->format('H:i:s')) : $now;
+
+        $validator = Validator::make($request->only([
+            'customer_id',
+            'amount',
+        ]), [
+            'customer_id' => 'required|exists:' . $type . ',id',
+            'amount' => 'required|numeric',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['status' => false, 'errors' => $validator->errors()->toArray()], 422);
+        }
+
+        $data['user_id'] = auth()->id();
+        $data['opening_balance'] = $loan->balance;
+        $data['balance'] = $request->amount;
+        $data['trade_date'] = $trade_date;
+
+        return $this->extracted($loan, $data, $trade_date, $request, $customer_type);
+
     }
 
     /**
@@ -101,13 +154,12 @@ class LoanController extends Controller
                 ]);
 
             // Create Loan Details
-            $details = $loan->details()
-                ->create([
-                    'user_id' => auth()->id(),
-                    'trade_date' => $trade_date,
-                    'opening_balance' => 0,
-                    'balance' => $request->balance
-                ]);
+            $data['user_id'] = auth()->id();
+            $data['opening_balance'] = 0;
+            $data['balance'] = $request->balance;
+            $data['trade_date'] = $trade_date;
+
+            $details = $this->saveLoanDetails($loan, $data);
 
             $type = 'LN';
             $sequence = $this->getLastSequence($details->trade_date, $type);
@@ -142,7 +194,6 @@ class LoanController extends Controller
 
     public function create(Request $request): JsonResponse
     {
-//        $drivers = DB::table('drivers')->select('id', 'name', 'phone', DB::raw('"driver" as type'))->
         $drivers = Driver::query()->doesntHave('loan')->select('id', 'name', 'phone', DB::raw('"driver" as type'))->get();
         $customers = Customer::query()->doesntHave('loan')->select('id', 'name', 'phone', 'type')->get();
         return response()->json([
@@ -172,6 +223,60 @@ class LoanController extends Controller
     public function destroy(string $id)
     {
         //
+    }
+
+    private function saveLoanDetails(Loan $loan, array $data): Model
+    {
+        return $loan->details()
+            ->create($data);
+    }
+
+    /**
+     * @param Loan $loan
+     * @param array $data
+     * @param \Illuminate\Support\Carbon|Carbon $trade_date
+     * @param Request $request
+     * @param Customer|Driver $customer_type
+     * @return InvoiceResource|void
+     */
+    public function extracted(Loan $loan, array $data, \Illuminate\Support\Carbon|Carbon $trade_date, Request $request, Customer|Driver $customer_type)
+    {
+        DB::beginTransaction();
+        try {
+            $details = $this->saveLoanDetails($loan, $data);
+
+            $type = 'LN';
+            $sequence = $this->getLastSequence($trade_date, $type);
+            $invoice_number = 'MM' . $type . $trade_date->format('Y') . sprintf('%08d', $sequence);
+
+            // Create Invoice
+            $invoice = Invoice::query()
+                ->create([
+                    'user_id' => auth()->id(),
+                    'trade_date' => $trade_date,
+                    'customer_id' => $request->customer_id,
+                    'customer_type' => get_class($customer_type),
+                    'invoice_number' => $invoice_number,
+                    'type' => $type,
+                    'sequence' => $sequence,
+                ]);
+
+            // Create Invoice Loan
+            $invoice->loan()->create([
+                'loan_details_id' => $details->id
+            ]);
+
+            $loan->update([
+                'balance' => $loan->balance + $data['balance'],
+            ]);
+            DB::commit();
+
+            return new InvoiceResource($invoice);
+
+        } catch (\Exception $exception) {
+            DB::rollBack();
+            abort(403, $exception->getCode() . ' ' . $exception->getMessage());
+        }
     }
 
 }
