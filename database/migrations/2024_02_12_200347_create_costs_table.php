@@ -13,9 +13,11 @@ return new class extends Migration
     {
         Schema::create('costs', function (Blueprint $table) {
             $table->id();
+            $table->foreignIdFor(\App\Models\User::class)->nullable()->constrained()->nullOnDelete()->cascadeOnUpdate();
             $table->string('type'); // Mobil / Plantation (Kebun) / Cost Trading (Upah Muat)
-            $table->dateTime('trade_data');
-            $table->nullableMorphs('cost'); // Customer and Land
+            $table->dateTime('trade_date');
+            $table->nullableMorphs('subject'); // Customer and Land
+            $table->string('category')->nullable();
             $table->text('description');
             $table->double('amount');
             $table->softDeletes();

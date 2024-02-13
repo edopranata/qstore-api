@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOneThrough;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Land extends Model
@@ -39,5 +40,10 @@ class Land extends Model
     public function plantation(): HasOneThrough
     {
         return $this->hasOneThrough(Plantation::class, PlantationDetails::class, 'land_id', 'id', 'id', 'plantation_id');
+    }
+
+    public function costs(): MorphMany
+    {
+        return $this->morphMany(Cost::class, 'subject');
     }
 }

@@ -17,6 +17,9 @@ use App\Http\Controllers\Api\Transaction\DeliveryOrderController;
 use App\Http\Controllers\Api\Transaction\PlantationController;
 use App\Http\Controllers\Api\Transaction\TradeBuyController;
 use App\Http\Controllers\Api\Transaction\TradeBuyDetailsController;
+use App\Http\Controllers\CarCostController;
+use App\Http\Controllers\PlantationCostController;
+use App\Http\Controllers\TradingCostController;
 use Illuminate\Support\Facades\Route;
 
 Route::group(['prefix' => 'management', 'as' => 'management.'], function () {
@@ -116,6 +119,17 @@ Route::group(['prefix' => 'transaction', 'as' => 'transaction.'], function () {
         Route::post('/', [DeliveryOrderController::class, 'store'])->name('createDeliveryOrder')->middleware('permission:app.transaction.deliveryOrders.createDeliveryOrder');
         Route::patch('/{delivery}', [DeliveryOrderController::class, 'update'])->name('updateDeliveryOrder')->middleware('permission:app.transaction.deliveryOrders.updateDeliveryOrder');
         Route::delete('/{delivery}', [DeliveryOrderController::class, 'destroy'])->name('deleteDeliveryOrder')->middleware('permission:app.transaction.deliveryOrders.deleteDeliveryOrder');
+    });
+});
+Route::group(['prefix' => 'biaya', 'as' => 'biaya.'], function () {
+    Route::group(['prefix' => 'biayaMobil', 'as' => 'biayaMobil.'], function () {
+        Route::get('/', [CarCostController::class, 'index'])->name('index')->middleware('permission:app.biaya.biayaMobil.index');
+    });
+    Route::group(['prefix' => 'biayaPembelianSawit', 'as' => 'biayaPembelianSawit.'], function () {
+        Route::get('/', [TradingCostController::class, 'index'])->name('index')->middleware('permission:app.biaya.biayaPembelianSawit.index');
+    });
+    Route::group(['prefix' => 'biayaKebun', 'as' => 'biayaKebun.'], function () {
+        Route::get('/', [PlantationCostController::class, 'index'])->name('index')->middleware('permission:app.biaya.biayaKebun.index');
     });
 });
 Route::group(['prefix' => 'invoice', 'as' => 'invoice.'], function () {
