@@ -14,6 +14,8 @@ class CostCollection extends ResourceCollection
      */
     public function toArray(Request $request): array
     {
-        return parent::toArray($request);
+        return [
+            'data' => CostResource::collection($this->collection->all())
+        ];
     }
 }

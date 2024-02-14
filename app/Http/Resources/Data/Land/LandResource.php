@@ -22,7 +22,7 @@ class LandResource extends JsonResource
             'area_id' => $this->whenLoaded('area', $this->area?->id),
             'area' => $this->whenLoaded('area', $this->area?->name),
             'created_by' => $this->whenLoaded('user', $this->user?->name),
-            'created_at' => $this->created_at->format('d-m-Y H:i:s'),
+            'created_at' => $this->created_at->format('d/m/Y H:i:s'),
         ];
     }
 }

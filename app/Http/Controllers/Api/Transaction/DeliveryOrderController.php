@@ -25,7 +25,6 @@ class DeliveryOrderController extends Controller
                 $sortBy = collect(json_decode($sort));
                 return $query->orderBy($sortBy['key'], $sortBy['order']);
             })->when(!$request->get('sortBy'), function ($query) {
-
                 return $query->orderByDesc('id');
             });
 
