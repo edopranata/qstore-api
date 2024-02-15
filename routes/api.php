@@ -1,7 +1,8 @@
 <?php
 
+use App\Http\Controllers\Api\Auth\ChangePasswordController;
+use App\Http\Controllers\Api\Auth\LogoutController;
 use App\Http\Controllers\Api\User\UserGetController;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -16,6 +17,7 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::middleware('auth:sanctum')->post('user', UserGetController::class);
-Route::middleware('auth:sanctum')->get('test', [\App\Http\Controllers\Api\TestController::class, 'index']);
-Route::get('menu', [\App\Http\Controllers\Api\TestController::class, 'get']);
+Route::middleware('auth:sanctum')->post('change-password', ChangePasswordController::class);
+Route::middleware('auth:sanctum')->post('logout', LogoutController::class);
+
 

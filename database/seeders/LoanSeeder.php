@@ -21,12 +21,11 @@ class LoanSeeder extends Seeder
 
         $faker = Factory::create();
         $customers = Customer::query()->inRandomOrder()->take(rand(5, 15))->get();
-
+        $sequence = 1;
         foreach ($customers as $customer) {
             $trade_date = now()->subDays(rand(2,15));
-            $sequence = $this->getLastSequence($trade_date, $type);
-            $invoice_number = 'MM'.$type. $trade_date->format('Y') . sprintf('%08d', $sequence);
 
+            $invoice_number = 'MM'.$type. $trade_date->format('Y') . sprintf('%08d', $sequence);
 
             $balance = $faker->randomElement([30000000, 20000000, 15000000, 50000000, 35000000]);
             $loan = Loan::query()->create([
@@ -55,6 +54,7 @@ class LoanSeeder extends Seeder
             $invoice->loan()->create([
                 'loan_details_id'    => $details->id
             ]);
+            $sequence++;
         }
 
     }

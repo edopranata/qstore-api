@@ -154,6 +154,7 @@ class InvoiceDeliveryOrderController extends Controller
             DB::commit();
             return new InvoiceResource($invoice);
         } catch (\Exception $exception) {
+            DB::rollBack();
             abort(403, $exception->getCode() . ' ' . $exception->getMessage());
         }
     }

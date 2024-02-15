@@ -3,7 +3,6 @@
 namespace Database\Seeders;
 
 use App\Http\Controllers\Traits\InvoiceTrait;
-use App\Models\Customer;
 use App\Models\Invoice;
 use App\Models\Loan;
 use Faker\Factory;
@@ -20,11 +19,13 @@ class LoanDetailsSeeder extends Seeder
         $type = 'LN';
         $faker = Factory::create();
         $loans = Loan::query()->get();
-        foreach ($loans as $loan) {
-            $trade_date = now()->subDays(rand(10,100));
-            $sequence = $this->getLastSequence($trade_date, $type);
-            $invoice_number = 'MM'.$type. $trade_date->format('Y') . sprintf('%08d', $sequence);
+        $trade_date = now();
+        $sequence = $this->getLastSequence($trade_date->format('Y'), $type);
 
+        foreach ($loans as $loan) {
+            $trade_date = now()->subDays(rand(10,30));
+            $invoice_number = 'MM'.$type. $trade_date->format('Y') . sprintf('%08d', $sequence);
+            $trade_date = $trade_date->subDays(rand(10,30));
             $details = $loan->details()->create([
                 'trade_date' => $trade_date,
                 'opening_balance' => $loan->balance,
@@ -39,8 +40,8 @@ class LoanDetailsSeeder extends Seeder
                 ->create([
                     'user_id' => 1,
                     'trade_date' => $trade_date,
-                    'customer_id' => $loan->customer_id,
-                    'customer_type' => get_class(new Customer()),
+                    'customer_id' => $loan->person_id,
+                    'customer_type' => $loan->person_type,
                     'invoice_number' => $invoice_number,
                     'type' => $type,
                     'sequence' => $sequence,
@@ -49,6 +50,7 @@ class LoanDetailsSeeder extends Seeder
             $invoice->loan()->create([
                 'loan_details_id'    => $details->id
             ]);
+            $sequence++;
         }
     }
 }

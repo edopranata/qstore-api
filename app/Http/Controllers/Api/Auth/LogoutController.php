@@ -3,7 +3,9 @@
 namespace App\Http\Controllers\Api\Auth;
 
 use App\Http\Controllers\Controller;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class LogoutController extends Controller
 {
@@ -18,12 +20,21 @@ class LogoutController extends Controller
     /**
      * Handle the incoming request.
      */
-    public function __invoke(Request $request)
+    public function __invoke(Request $request): JsonResponse
     {
-        auth()->user()->tokens()->delete();
+        DB::beginTransaction();
+        try {
+            $request->user()->tokens()->delete();
+            DB::commit();
 
-        return response()->json([
-            'message' => 'Tokens Revoked',
-        ], 201);
+            return response()->json([
+                'status' => true,
+                'message' => 'Tokens Revoked',
+            ], 201);
+        } catch (\Exception $exception) {
+            DB::rollBack();
+            abort(403, $exception->getCode() . ' ' . $exception->getMessage());
+        }
+
     }
 }
