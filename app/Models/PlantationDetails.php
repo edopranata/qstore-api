@@ -29,4 +29,9 @@ class PlantationDetails extends Model
     {
         return $this->belongsTo(Plantation::class);
     }
+
+    public function land(): BelongsTo
+    {
+        return $this->belongsTo(Land::class);
+    }
 }

@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -39,6 +40,10 @@ class Customer extends Model
     public function invoice(): MorphMany
     {
         return $this->morphMany(Invoice::class, 'customer');
+    }
 
+    public function trades() : HasMany
+    {
+        return $this->hasMany(TradingDetails::class);
     }
 }

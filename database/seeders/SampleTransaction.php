@@ -17,8 +17,8 @@ class SampleTransaction extends Seeder
             TradingDetailsSeeder::class,
             PlantationSeeder::class,
             PlantationDetailsSeeder::class,
-            LoanSeeder::class,
-            LoanDetailsSeeder::class,
+//            LoanSeeder::class,
+//            LoanDetailsSeeder::class,
         ]);
     }
 }

@@ -4,6 +4,7 @@ namespace App\Http\Resources\Invoice;
 
 use App\Http\Resources\Data\Customer\CustomerResource;
 use App\Http\Resources\Loan\LoanDetailResource;
+use App\Http\Resources\Transaction\Buy\BuyPalmDetailsResource;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -24,6 +25,7 @@ class InvoicePrintResource extends JsonResource
             'loan' => new LoanDetailResource($this->whenLoaded('loan_details')),
             'customer' => new CustomerResource($this->whenLoaded('customer')),
             'detail_do' => InvoiceDOPrintResource::collection($this->whenLoaded('detail_do')),
+            'detail_trades' => BuyPalmDetailsResource::collection($this->whenLoaded('detail_trades')),
         ];
     }
 }

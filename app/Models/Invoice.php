@@ -44,9 +44,9 @@ class Invoice extends Model
         return $this->hasManyThrough(DeliveryOrder::class, InvoiceDetail::class, 'invoice_id', 'id', 'id', 'delivery_order_id');
     }
 
-    public function detail_plantation(): HasManyThrough
+    public function detail_trades(): HasManyThrough
     {
-        return $this->hasManyThrough(Plantation::class, InvoiceDetail::class, 'invoice_id', 'id', 'id', 'plantation_id');
+        return $this->hasManyThrough(TradingDetails::class, InvoiceDetail::class, 'invoice_id', 'id', 'id', 'trading_details_id');
 
     }
     public function loan(): HasOne

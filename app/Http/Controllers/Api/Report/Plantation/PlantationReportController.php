@@ -11,12 +11,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
 
-class PlantationReport extends Controller
+class PlantationReportController extends Controller
 {
-    /**
-     * Handle the incoming request.
-     */
-    public function __invoke(Request $request)
+    public function index(Request $request)
     {
         switch ($request->type) {
             case 'Period':

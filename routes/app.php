@@ -7,12 +7,13 @@ use App\Http\Controllers\Api\Data\DriverController;
 use App\Http\Controllers\Api\Data\LandController;
 use App\Http\Controllers\Api\Invoice\InvoiceDataController;
 use App\Http\Controllers\Api\Invoice\InvoiceDeliveryOrderController;
+use App\Http\Controllers\Api\Invoice\InvoiceFarmersController;
 use App\Http\Controllers\Api\Loan\LoanController;
 use App\Http\Controllers\Api\Management\PermissionController;
 use App\Http\Controllers\Api\Management\RoleController;
 use App\Http\Controllers\Api\Management\UserController;
-use App\Http\Controllers\Api\Report\Plantation\PlantationDetailReport;
-use App\Http\Controllers\Api\Report\Plantation\PlantationReport;
+use App\Http\Controllers\Api\Report\Plantation\PlantationReportController;
+use App\Http\Controllers\Api\Report\ReportController;
 use App\Http\Controllers\Api\Transaction\DeliveryOrderController;
 use App\Http\Controllers\Api\Transaction\PlantationController;
 use App\Http\Controllers\Api\Transaction\TradeBuyController;
@@ -152,15 +153,22 @@ Route::group(['prefix' => 'invoice', 'as' => 'invoice.'], function () {
         Route::get('/', [InvoiceDeliveryOrderController::class, 'index'])->name('index')->middleware('permission:app.invoice.buatInvoiceDO.index');
         Route::post('/', [InvoiceDeliveryOrderController::class, 'store'])->name('simpanInvoiceDO')->middleware('permission:app.invoice.buatInvoiceDO.simpanInvoiceDO');
     });
+    Route::group(['prefix' => 'buatInvoicePetani', 'as' => 'buatInvoicePetani.'], function () {
+        Route::get('/', [InvoiceFarmersController::class, 'index'])->name('index')->middleware('permission:app.invoice.buatInvoicePetani.index');
+        Route::post('/', [InvoiceFarmersController::class, 'store'])->name('simpanInvoicePetani')->middleware('permission:app.invoice.buatInvoicePetani.simpanInvoicePetani');
+
+    });
 });
 
 Route::group(['prefix' => 'laporan', 'as' => 'laporan.'], function () {
-    Route::group(['prefix' => 'hasilKebun', 'as' => 'hasilKebun.'], function () {
-        Route::get('/', PlantationReport::class)->name('index')->middleware('permission:app.laporan.hasilKebun.index');
+    Route::group(['prefix' => 'dataLaporan', 'as' => 'dataLaporan.'], function () {
+        Route::get('/', [ReportController::class, 'index'])->name('index')->middleware('permission:app.laporan.dataLaporan.index');
+
+        Route::get('/hasilKebun', [PlantationReportController::class, 'index'])->name('hasilKebun')->middleware('permission:app.laporan.dataLaporan.hasilKebun');
+        Route::get('/printHasilKebun', [PlantationReportController::class, 'index'])->name('printHasilKebun')->middleware('permission:app.laporan.dataLaporan.printHasilKebun');
+
     });
-    Route::group(['prefix' => 'hasilLahan', 'as' => 'hasilLahan.'], function () {
-        Route::get('/', PlantationDetailReport::class)->name('index')->middleware('permission:app.laporan.hasilLahan.index');
-    });
+
 });
 
 

@@ -29,7 +29,7 @@ class InvoiceDataController extends Controller
      */
     public function show(Invoice $invoice)
     {
-        $invoice->load(['customer', 'detail_do', 'loan_details']);
+        $invoice->load(['customer', 'detail_do', 'loan_details', 'detail_trades']);
         return new InvoicePrintResource($invoice);
     }
 
