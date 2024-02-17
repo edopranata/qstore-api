@@ -32,15 +32,15 @@ class DatabaseSeeder extends Seeder
 
         Role::create(['name' => $administrator]);
         foreach ($roles as $role) {
-            $user = User::factory()->create([
+            Role::create(['name' => $role]);
+
+            $admin = \App\Models\User::factory()->create([
                 'name' => $role,
                 'username' => \str($role)->lower(),
                 'email' => \str($role)->lower().'@admin.com',
             ]);
 
-            Role::create(['name' => $role]);
-
-            $user->assignRole($role);
+            $admin->assignRole($role);
         }
 
         $permissions = collect(Route::getRoutes())
@@ -67,6 +67,7 @@ class DatabaseSeeder extends Seeder
                 return !is_null($value);
             });
 
+//        $permissions->values()->dd();
         $role = Role::query()->first();
         foreach ($permissions as $item) {
             $permission = Permission::create([
@@ -88,13 +89,13 @@ class DatabaseSeeder extends Seeder
 
         $user->assignRole($administrator);
 
-        $users = User::factory()->count(rand(3, 7))->create();
+        $users = User::factory()->count(rand(3, 10))->create();
         foreach ($users as $assign) {
             $assign->assignRole($roles[rand(0,1)]);
         }
-
         $this->call([
             MenuSeeder::class,
+            RoleSeeder::class,
             SettingSeeder::class,
         ]);
     }
