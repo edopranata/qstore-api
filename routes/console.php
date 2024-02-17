@@ -1,6 +1,5 @@
 <?php
 
-use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
 
 /*
@@ -14,6 +13,38 @@ use Illuminate\Support\Facades\Artisan;
 |
 */
 
-Artisan::command('inspire', function () {
-    $this->comment(Inspiring::quote());
-})->purpose('Display an inspiring quote');
+Artisan::command('app:install', function () {
+    $this->info("Rollback and Migrate table");
+    Artisan::call('migrate:fresh', [
+        '--force' => true
+    ]);
+    $this->info("Migrating complete");
+})->purpose('Migrate db Installation');
+
+Artisan::command('app:sample-data', function () {
+    $this->info("Dumping dummy data");
+    Artisan::call('db:seed', [
+        '--class' => 'DatabaseSeeder'
+    ]);
+
+    Artisan::call('db:seed', [
+        '--class' => 'SampleMaster'
+    ]);
+    $this->info("Dumping data complete");
+    $this->info("User: administrator");
+    $this->info("Pass: password");
+})->purpose('Dump sample data');
+
+Artisan::command('app:fresh-install', function () {
+    Artisan::call('migrate:fresh', [
+        '--force' => true
+    ]);
+
+    Artisan::call('db:seed', [
+        '--class' => 'DatabaseSeeder'
+    ]);
+
+    Artisan::call('db:seed', [
+        '--class' => 'SampleMaster'
+    ]);
+})->purpose('Migrate db Installation and dump dummy data');
