@@ -48,9 +48,9 @@ Route::get('tes', function () {
     $plantation_details = \App\Models\PlantationDetails::query()
         ->with('land')
         ->withWhereHas('plantation', function ($builder){
-            return $builder->whereYear('trade_date', 2023)->whereMonth('trade_date', 11);
+            return $builder->whereYear('trade_date', 2024);
         })
-        ->where('land_id', 3)->get();
+        ->whereIn('land_id', [1,2,3])->get();
 
     return $plantation_details;
 });

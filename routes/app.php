@@ -12,6 +12,8 @@ use App\Http\Controllers\Api\Loan\LoanController;
 use App\Http\Controllers\Api\Management\PermissionController;
 use App\Http\Controllers\Api\Management\RoleController;
 use App\Http\Controllers\Api\Management\UserController;
+use App\Http\Controllers\Api\Report\Plantation\AreaReportController;
+use App\Http\Controllers\Api\Report\Plantation\LandReportController;
 use App\Http\Controllers\Api\Report\Plantation\PlantationReportController;
 use App\Http\Controllers\Api\Report\ReportController;
 use App\Http\Controllers\Api\Transaction\DeliveryOrderController;
@@ -166,6 +168,12 @@ Route::group(['prefix' => 'laporan', 'as' => 'laporan.'], function () {
 
         Route::get('/hasilKebun', [PlantationReportController::class, 'index'])->name('hasilKebun')->middleware('permission:app.laporan.dataLaporan.hasilKebun');
         Route::get('/printHasilKebun', [PlantationReportController::class, 'index'])->name('printHasilKebun')->middleware('permission:app.laporan.dataLaporan.printHasilKebun');
+
+        Route::get('/hasilLahan', [LandReportController::class, 'index'])->name('hasilLahan')->middleware('permission:app.laporan.dataLaporan.hasilLahan');
+        Route::get('/printHasilLahan', [LandReportController::class, 'index'])->name('printHasilLahan')->middleware('permission:app.laporan.dataLaporan.printHasilLahan');
+
+        Route::get('/hasilLahanPerArea', [AreaReportController::class, 'index'])->name('hasilLahanPerArea'); //->middleware('permission:app.laporan.dataLaporan.hasilLahanPerArea');
+        Route::get('/printHasilLahanPerArea', [AreaReportController::class, 'index'])->name('printHasilLahanPerArea'); //->middleware('permission:app.laporan.dataLaporan.printHasilLahanPerArea');
 
     });
 
