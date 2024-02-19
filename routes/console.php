@@ -48,3 +48,12 @@ Artisan::command('app:fresh-install', function () {
         '--class' => 'SampleMaster'
     ]);
 })->purpose('Migrate db Installation and dump dummy data');
+
+Artisan::command('app:sample-transaction', function () {
+    $this->info("Dump sample transaction");
+    Artisan::call('db:seed', [
+        '--class' => 'SampleTransaction',
+        '--force' => true,
+    ]);
+    $this->info("Dumping complete");
+})->purpose('Dump sample transaction');

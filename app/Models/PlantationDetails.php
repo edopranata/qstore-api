@@ -34,4 +34,9 @@ class PlantationDetails extends Model
     {
         return $this->belongsTo(Land::class);
     }
+
+    public function area()
+    {
+        return $this->hasOneThrough(Area::class, Land::class, 'id', 'id', 'id', 'area_id');
+    }
 }

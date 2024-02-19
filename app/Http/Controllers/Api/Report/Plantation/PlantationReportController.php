@@ -13,9 +13,9 @@ use Illuminate\Support\Facades\Validator;
 
 class PlantationReportController extends Controller
 {
-    public function index(Request $request)
+    public function __invoke(Request $request)
     {
-        switch ($request->type) {
+        switch ($request->get('type')) {
             case 'Period':
                 return $this->period($request);
 
@@ -66,7 +66,7 @@ class PlantationReportController extends Controller
             })->get();
     }
 
-    private function monthly(Request $request)
+    private function monthly(Request $request): JsonResponse
     {
         $validator = Validator::make($request->only([
             'monthly'
@@ -79,14 +79,14 @@ class PlantationReportController extends Controller
             return response()->json(['status' => false, 'errors' => $validator->errors()->toArray()], 422);
         }
 
-        $date = str($request->monthly)->split('#/#');
+        $date = str($request->get('monthly'))->split('#/#');
 
         $data = ['month' => $date[1], 'year' => $date[0]];
 
         return response()->json(['plantations' => PlantationResource::collection($this->plantation($data))], 201);
     }
 
-    private function annual(Request $request)
+    private function annual(Request $request): JsonResponse
     {
         $validator = Validator::make($request->only([
             'annual'
@@ -99,7 +99,7 @@ class PlantationReportController extends Controller
             return response()->json(['status' => false, 'errors' => $validator->errors()->toArray()], 422);
         }
 
-        $data = ['year' => $request->annual];
+        $data = ['year' => $request->get('annual')];
 
         return response()->json(['plantations' => PlantationResource::collection($this->plantation($data))], 201);
     }

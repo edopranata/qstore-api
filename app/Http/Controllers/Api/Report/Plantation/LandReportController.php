@@ -16,8 +16,9 @@ use Illuminate\Support\Facades\Validator;
 
 class LandReportController extends Controller
 {
-    public function index(Request $request)
+    public function __invoke(Request $request): JsonResponse
     {
+
         switch ($request->type) {
             case 'Period':
                 return $this->period($request);
@@ -61,10 +62,12 @@ class LandReportController extends Controller
     private function period(Request $request): JsonResponse
     {
         $validator = Validator::make($request->only([
-            'period_start', 'period_end'
+            'period_start', 'period_end', 'land_id'
         ]), [
             'period_start' => ['required', 'date', 'min:1'],
             'period_end' => ['required', 'date', 'after_or_equal:period_start'],
+            'land_id' => 'required|array',
+            'land_id.*' => 'exists:lands,id'
 
         ]);
 
@@ -72,18 +75,20 @@ class LandReportController extends Controller
             return response()->json(['status' => false, 'errors' => $validator->errors()->toArray()], 422);
         }
 
-        $data = ['period_start' => $request->period_start, 'period_end' => $request->period_end,  'land_id' => str($request->land_id)->explode(',')];
+        $data = ['period_start' => $request->period_start, 'period_end' => $request->period_end,  'land_id' => $request->land_id];
 
-        return response()->json(['lands' => PlantationDetailResource::collection($this->lands($data)), 'request' => collect($data['land_id'])], 201);
+        return response()->json(['lands' => PlantationDetailResource::collection($this->lands($data))], 201);
 
     }
 
-    private function monthly(Request $request)
+    private function monthly(Request $request): JsonResponse
     {
         $validator = Validator::make($request->only([
-            'monthly'
+            'monthly', 'land_id'
         ]), [
             'monthly' => ['required', 'date_format:Y/m'],
+            'land_id' => 'required|array',
+            'land_id.*' => 'exists:lands,id'
 
         ]);
 
@@ -93,17 +98,19 @@ class LandReportController extends Controller
 
         $date = str($request->monthly)->split('#/#');
 
-        $data = ['month' => $date[1], 'year' => $date[0], 'land_id' => str($request->land_id)->explode(',')];
+        $data = ['month' => $date[1], 'year' => $date[0], 'land_id' =>$request->land_id];
 
-        return response()->json(['lands' => PlantationDetailResource::collection($this->lands($data)), 'request' => collect($data['land_id'])], 201);
+        return response()->json(['lands' => PlantationDetailResource::collection($this->lands($data))], 201);
     }
 
-    private function annual(Request $request)
+    private function annual(Request $request): JsonResponse
     {
         $validator = Validator::make($request->only([
-            'annual'
+            'annual', 'land_id'
         ]), [
             'annual' => ['required', 'date_format:Y'],
+            'land_id' => 'required|array',
+            'land_id.*' => 'exists:lands,id'
 
         ]);
 
@@ -111,8 +118,8 @@ class LandReportController extends Controller
             return response()->json(['status' => false, 'errors' => $validator->errors()->toArray()], 422);
         }
 
-        $data = ['year' => $request->annual, 'land_id' => str($request->land_id)->explode(',')];
+        $data = ['year' => $request->annual, 'land_id' => $request->land_id];
 
-        return response()->json(['lands' => PlantationDetailResource::collection($this->lands($data)), 'request' => collect($data['land_id'])], 201);
+        return response()->json(['lands' => PlantationDetailResource::collection($this->lands($data))], 201);
     }
 }

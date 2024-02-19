@@ -12,7 +12,8 @@ use App\Http\Controllers\Api\Loan\LoanController;
 use App\Http\Controllers\Api\Management\PermissionController;
 use App\Http\Controllers\Api\Management\RoleController;
 use App\Http\Controllers\Api\Management\UserController;
-use App\Http\Controllers\Api\Report\Plantation\AreaReportController;
+use App\Http\Controllers\Api\Report\Car\CarRecapReportController;
+use App\Http\Controllers\Api\Report\Car\CarReportController;
 use App\Http\Controllers\Api\Report\Plantation\LandReportController;
 use App\Http\Controllers\Api\Report\Plantation\PlantationReportController;
 use App\Http\Controllers\Api\Report\ReportController;
@@ -166,14 +167,20 @@ Route::group(['prefix' => 'laporan', 'as' => 'laporan.'], function () {
     Route::group(['prefix' => 'dataLaporan', 'as' => 'dataLaporan.'], function () {
         Route::get('/', [ReportController::class, 'index'])->name('index')->middleware('permission:app.laporan.dataLaporan.index');
 
-        Route::get('/hasilKebun', [PlantationReportController::class, 'index'])->name('hasilKebun')->middleware('permission:app.laporan.dataLaporan.hasilKebun');
-        Route::get('/printHasilKebun', [PlantationReportController::class, 'index'])->name('printHasilKebun')->middleware('permission:app.laporan.dataLaporan.printHasilKebun');
+        Route::get('/hasilKebun', PlantationReportController::class)->name('hasilKebun')->middleware('permission:app.laporan.dataLaporan.hasilKebun');
+        Route::get('/printHasilKebun', PlantationReportController::class)->name('printHasilKebun')->middleware('permission:app.laporan.dataLaporan.printHasilKebun');
 
-        Route::get('/hasilLahan', [LandReportController::class, 'index'])->name('hasilLahan')->middleware('permission:app.laporan.dataLaporan.hasilLahan');
-        Route::get('/printHasilLahan', [LandReportController::class, 'index'])->name('printHasilLahan')->middleware('permission:app.laporan.dataLaporan.printHasilLahan');
+        Route::match(['get', 'post'], '/hasilLahan', LandReportController::class)->name('hasilLahan')->middleware('permission:app.laporan.dataLaporan.hasilLahan');
+        Route::match(['get', 'post'], '/printHasilLahan', LandReportController::class)->name('printHasilLahan')->middleware('permission:app.laporan.dataLaporan.printHasilLahan');
 
-        Route::get('/hasilLahanPerArea', [AreaReportController::class, 'index'])->name('hasilLahanPerArea'); //->middleware('permission:app.laporan.dataLaporan.hasilLahanPerArea');
-        Route::get('/printHasilLahanPerArea', [AreaReportController::class, 'index'])->name('printHasilLahanPerArea'); //->middleware('permission:app.laporan.dataLaporan.printHasilLahanPerArea');
+//        Route::get('/hasilLahanPerArea', [AreaReportController::class, 'index'])->name('hasilLahanPerArea'); //->middleware('permission:app.laporan.dataLaporan.hasilLahanPerArea');
+//        Route::get('/printHasilLahanPerArea', [AreaReportController::class, 'index'])->name('printHasilLahanPerArea'); //->middleware('permission:app.laporan.dataLaporan.printHasilLahanPerArea');
+
+        Route::match(['get', 'post'], '/penghasilanMobil', CarReportController::class)->name('penghasilanMobil')->middleware('permission:app.laporan.dataLaporan.penghasilanMobil');
+        Route::match(['get', 'post'], '/printPenghasilanMobil', CarReportController::class)->name('printPenghasilanMobil')->middleware('permission:app.laporan.dataLaporan.printPenghasilanMobil');
+
+        Route::match(['get', 'post'], '/rekapPenghasilanMobil', CarRecapReportController::class)->name('rekapPenghasilanMobil'); //->middleware('permission:app.laporan.dataLaporan.rekapPenghasilanMobil');
+        Route::match(['get', 'post'], '/printRekapPenghasilanMobil', CarRecapReportController::class)->name('printRekapPenghasilanMobil'); //->middleware('permission:app.laporan.dataLaporan.printRekapPenghasilanMobil');
 
     });
 
