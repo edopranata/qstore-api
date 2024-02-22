@@ -24,7 +24,7 @@ class InvoiceFarmersController extends Controller
             ->withWhereHas('trades', function ($builder) use ($request){
                 return $builder->whereNull('farmer_status');
             })
-            ->where('type', 'farmers')
+            ->where('type', 'farmer')
             ->get();
 
         return new InvoiceFarmersCollection($farmers);

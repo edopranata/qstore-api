@@ -18,7 +18,7 @@ class CustomerFactory extends Factory
     {
         return [
             'name'      => $this->faker->unique()->name(),
-            'type'      => $this->faker->randomElement(['farmers', 'collector']),
+            'type'      => $this->faker->randomElement(['farmer', 'collector']),
             'phone'     => $this->faker->phoneNumber(),
             'address'   => $this->faker->address(),
             'distance'  => $this->faker->randomNumber(2, true)

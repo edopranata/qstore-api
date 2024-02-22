@@ -128,7 +128,7 @@ class LoanController extends Controller
             'balance',
             'trade_date'
         ]), [
-            'type' => 'required|in:farmers,collector,driver',
+            'type' => 'required|in:farmer,collector,driver',
             'customer_id' => 'required|exists:' . $type . ',id',
             'balance' => 'required|numeric|min:1',
             'trade_date' => 'required|date|before_or_equal:' . Carbon::now()->toDateString(),

@@ -104,7 +104,7 @@ class TradeBuyController extends Controller
 
             $details = $query->paginate($request->get('limit', 10));
             $customers = Customer::query()
-                ->where('type', 'farmers')->get();
+                ->where('type', 'farmer')->get();
 
             return response()->json([
                 'customers' => DriverResource::collection($customers),
