@@ -126,6 +126,18 @@ Route::group(['prefix' => 'deliveryOrder', 'as' => 'deliveryOrder.'], function (
         Route::patch('/{customer}', [CustomerController::class, 'update'])->name('updateDataPengepul')->middleware('permission:app.deliveryOrder.dataPengepul.updateDataPengepul');
         Route::delete('/{customer}', [CustomerController::class, 'destroy'])->name('hapusDataPengepul')->middleware('permission:app.deliveryOrder.dataPengepul.hapusDataPengepul');
     });
+
+    Route::group(['prefix' => 'transaksiDO', 'as' => 'transaksiDO.'], function () {
+        Route::get('', [DeliveryOrderController::class, 'index'])->name('index')->middleware('permission:app.deliveryOrder.transaksiDO.index');
+        Route::post('/', [DeliveryOrderController::class, 'store'])->name('createDeliveryOrder')->middleware('permission:app.deliveryOrder.transaksiDO.createDeliveryOrder');
+        Route::patch('/{delivery}', [DeliveryOrderController::class, 'update'])->name('updateDeliveryOrder')->middleware('permission:app.deliveryOrder.transaksiDO.updateDeliveryOrder');
+        Route::delete('/{delivery}', [DeliveryOrderController::class, 'destroy'])->name('deleteDeliveryOrder')->middleware('permission:app.deliveryOrder.transaksiDO.deleteDeliveryOrder');
+    });
+
+    Route::group(['prefix' => 'buatInvoiceDO', 'as' => 'buatInvoiceDO.'], function () {
+        Route::get('/', [InvoiceDeliveryOrderController::class, 'index'])->name('index')->middleware('permission:app.deliveryOrder.buatInvoiceDO.index');
+        Route::post('/', [InvoiceDeliveryOrderController::class, 'store'])->name('simpanInvoiceDO')->middleware('permission:app.deliveryOrder.buatInvoiceDO.simpanInvoiceDO');
+    });
 });
 
 
