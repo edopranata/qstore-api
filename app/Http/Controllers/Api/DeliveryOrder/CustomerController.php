@@ -1,26 +1,33 @@
 <?php
 
-namespace App\Http\Controllers\Api\Data;
+namespace App\Http\Controllers\Api\DeliveryOrder;
 
 use App\Http\Controllers\Controller;
-use App\Http\Resources\Data\Land\LandCollection;
-use App\Http\Resources\Data\Land\LandResource;
-use App\Models\Land;
+use App\Http\Resources\Data\Customer\CustomerCollection;
+use App\Http\Resources\Data\Customer\CustomerResource;
+use App\Models\Customer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
-class LandController extends Controller
+class CustomerController extends Controller
 {
-    public function index(Request $request)
+    private string $type = 'collector';
+    public function index(Request $request): CustomerCollection
     {
-        $query = Land::query()
-            ->with('area')
+        $query = Customer::query()
+            ->where('type', $this->type)
             ->when($request->get('name'), function ($query, $search) {
                 return $query->where('name', 'LIKE', "%$search%");
             })
-            ->when($request->get('area_id'), function ($query, $search) {
-                return $query->whereRelation("area", "id", $search);
+            ->when($request->get('type'), function ($query, $search) {
+                return $query->where('type', 'LIKE', "%$search%");
+            })
+            ->when($request->get('phone'), function ($query, $search) {
+                return $query->where('phone', 'LIKE', "%$search%");
+            })
+            ->when($request->get('address'), function ($query, $search) {
+                return $query->where('address', 'LIKE', "%$search%");
             })
             ->when($request->get('user'), function ($query, $search) {
                 return $query->whereRelation("user", "name", "like", "%$search%");
@@ -32,7 +39,7 @@ class LandController extends Controller
 
         $data = $request->get('limit', 0) > 0 ? $query->paginate($request->get('limit', 10)) : $query->get();
 
-        return new LandCollection($data);
+        return new CustomerCollection($data);
     }
 
     /**
@@ -44,82 +51,70 @@ class LandController extends Controller
         try {
             $validator = Validator::make($request->only([
                 'name',
-                'area_id',
-                'wide',
-                'trees',
+                'phone',
             ]), [
-                'name' => 'required|string|min:3|max:30|unique:lands,name',
-                'area_id' => 'required|exists:areas,id',
-                'wide' => 'required|numeric',
-                'trees' => 'required|numeric',
+                'name' => 'required|string|min:3|max:30',
+                'phone' => 'required|string|max:20|unique:customers,phone',
             ]);
 
             if ($validator->fails()) {
                 return response()->json(['status' => false, 'errors' => $validator->errors()->toArray()], 422);
             }
 
-            $land = Land::query()
+            $customer = Customer::query()
                 ->create([
+                    'type' => $this->type,
                     'name' => $request->name,
-                    'area_id' => $request->area_id,
-                    'wide' => $request->wide,
-                    'trees' => $request->trees,
+                    'phone' => $request->phone,
+                    'address' => $request->address,
+                    'distance' => $request->distance,
                     'user_id' => auth()->id()
                 ]);
 
             DB::commit();
 
-            return new LandResource($land->load(['user', 'area']));
+            return new CustomerResource($customer->load('user'));
 
         } catch (\Exception $exception) {
+            DB::rollBack();
             abort(403, $exception->getCode() . ' ' . $exception->getMessage());
         }
     }
 
     /**
-     * Display the specified resource.
-     */
-    public function show(Land $land)
-    {
-        //
-    }
-
-    /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Land $land)
+    public function update(Request $request, Customer $customer)
     {
         DB::beginTransaction();
         try {
             $validator = Validator::make($request->only([
                 'name',
-                'area_id',
-                'wide',
-                'trees',
+                'phone',
             ]), [
-                'name' => 'required|string|min:3|max:30|unique:lands,name,' . $land->id,
-                'area_id' => 'required|exists:areas,id',
-                'wide' => 'required|numeric',
-                'trees' => 'required|numeric',
+                'name' => 'required|string|min:3|max:30',
+                'phone' => 'required|string|max:20|unique:customers,phone,' . $request->id,
             ]);
 
             if ($validator->fails()) {
                 return response()->json(['status' => false, 'errors' => $validator->errors()->toArray()], 422);
             }
 
-            $land->update([
+            $customer->update([
+                'type' => $this->type,
                 'name' => $request->name,
-                'area_id' => $request->area_id,
-                'wide' => $request->wide,
-                'trees' => $request->trees,
+                'phone' => $request->phone,
+                'address' => $request->address,
+                'distance' => $request->distance,
                 'user_id' => auth()->id()
             ]);
 
             DB::commit();
 
-            return new LandResource($land->load(['user', 'area']));
+            return new CustomerResource($customer->load('user'));
 
         } catch (\Exception $exception) {
+            DB::rollBack();
             abort(403, $exception->getCode() . ' ' . $exception->getMessage());
         }
     }
@@ -127,16 +122,16 @@ class LandController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Land $land, Request $request)
+    public function destroy(Customer $customer, Request $request): \Illuminate\Http\JsonResponse
     {
         DB::beginTransaction();
         try {
-            $lands = $request->land_id;
-            if (is_array($lands)) {
-                Land::query()
-                    ->whereIn('id', $request->land_id)->delete();
+            $customers = $request->customer_id;
+            if (is_array($customers)) {
+                Customer::query()
+                    ->whereIn('id', $request->customer_id)->delete();
             } else {
-                $land->delete();
+                $customer->delete();
             }
 
             DB::commit();

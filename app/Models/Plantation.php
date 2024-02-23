@@ -25,22 +25,22 @@ class Plantation extends Model
 
     public function details(): HasMany
     {
-        return $this->hasMany(PlantationDetails::class);
+        return $this->hasMany(PlantationDetails::class)->withTrashed();
     }
 
     public function user(): BelongsTo
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class)->withTrashed();
     }
 
     public function car(): BelongsTo
     {
-        return $this->belongsTo(Car::class);
+        return $this->belongsTo(Car::class)->withTrashed();
     }
 
     public function driver(): BelongsTo
     {
-        return $this->belongsTo(Driver::class);
+        return $this->belongsTo(Driver::class)->withTrashed();
     }
 
     public function order(): MorphOne

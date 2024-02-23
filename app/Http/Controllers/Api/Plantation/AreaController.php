@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Api\Data;
+namespace App\Http\Controllers\Api\Plantation;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Data\Area\AreaCollection;

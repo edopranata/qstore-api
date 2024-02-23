@@ -22,17 +22,17 @@ class PlantationDetails extends Model
 
     public function user(): BelongsTo
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class)->withTrashed();
     }
 
     public function plantation(): BelongsTo
     {
-        return $this->belongsTo(Plantation::class);
+        return $this->belongsTo(Plantation::class)->withTrashed();
     }
 
-    public function land(): BelongsTo
+    public function land()
     {
-        return $this->belongsTo(Land::class);
+        return $this->belongsTo(Land::class)->withTrashed();
     }
 
     public function area()

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Api\Data;
+namespace App\Http\Controllers\Api\Car;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Data\Car\CarCollection;

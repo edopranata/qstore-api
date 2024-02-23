@@ -18,7 +18,6 @@ return new class extends Migration {
 
             $table->string('name')->default('Trading');
             $table->dateTime('trade_date');
-            $table->double('trade_cost')->default(0)->comment('Uang jalan'); // Uang Jalan
 
             // Timbangan Kebuh
             $table->double('customer_average_price')->default(0)->comment('Rata-rata Harga beli dari petani'); // Rata-rata Harga beli dari petani
@@ -33,8 +32,12 @@ return new class extends Migration {
             $table->double('net_price')->default(0)->comment('Harga Pabrik'); // Pendapatan Bersih
             $table->double('gross_total')->default(0)->comment('Pendapatan kotor'); // Pendapatan Bersih
 
-            $table->double('driver_fee')->default(20)->comment('Uang supir Rp / Kg');
-            $table->double('car_fee')->default(80)->comment('Amprah Mobil Rp/ Kg');
+            $table->double('trade_cost')->default(0)->comment('Uang jalan');
+            $table->double('car_transport')->default(0)->comment('Biaya Minya');
+            $table->double('driver_fee')->default(0)->comment('Uang supir Rp / Kg');
+            $table->double('loader_fee')->default(0)->comment('Uang muat Rp / Kg');
+            $table->double('car_fee')->default(0)->comment('Amprah Mobil Rp/ Kg');
+            $table->double('cost_total')->default(0)->comment('Total Biaya Rp');
 
             $table->double('net_income')->default(0)->comment('Pendapatan bersih setelah di kurangi semua biaya (Amprah, Upah Supir, Uang Jalan)');
 

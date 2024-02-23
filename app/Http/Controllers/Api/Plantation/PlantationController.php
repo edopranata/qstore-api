@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Api\Transaction;
+namespace App\Http\Controllers\Api\Plantation;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Data\Area\AreaCollection;
@@ -67,7 +67,7 @@ class PlantationController extends Controller
         DB::beginTransaction();
         try {
             $validator = Validator::make($request->only([
-                'trade_date', 'trade_cost', 'car_id', 'driver_id', 'land_id', 'net_weight', 'net_price', 'car_fee', 'driver_fee'
+                'trade_date', 'trade_cost', 'car_id', 'driver_id', 'land_id', 'net_weight', 'net_price', 'car_fee', 'driver_fee', 'loader_land_fee', 'car_transport'
             ]), [
                 'trade_date' => 'required|date|before_or_equal:' . $now->toDateString(),
                 'trade_cost' => 'required|numeric|min:1',
@@ -76,6 +76,8 @@ class PlantationController extends Controller
                 'car_id' => 'required|exists:cars,id',
                 'driver_id' => 'required|exists:drivers,id',
                 'car_fee' => 'required|numeric|min:1',
+                'car_transport' => 'required|numeric|min:1',
+                'loader_land_fee' => 'required|numeric|min:1',
                 'driver_fee' => 'required|numeric|min:1',
                 'land_id' => 'required|array',
                 'land_id.*' => 'exists:lands,id'
@@ -93,13 +95,16 @@ class PlantationController extends Controller
 
             $driver_fee = $request->driver_fee;
             $car_fee = $request->car_fee;
+            $loader_fee = $request->loader_land_fee;
+            $car_transport = $request->car_transport;
 
             $driver_cost = $driver_fee * $net_weight;
             $car_cost = $car_fee * $net_weight;
+            $loader_cost = $loader_fee * $net_weight;
 
             $net_total = $price * $net_weight;
 
-            $gross_total = $trade_cost + $driver_cost + $car_cost;
+            $gross_total = $trade_cost + $driver_cost + $car_cost + $loader_cost + $car_transport;
 
             $net_income = $net_total - $gross_total;
 
@@ -113,7 +118,10 @@ class PlantationController extends Controller
                     'trade_cost' => $trade_cost,
                     'net_weight' => $net_weight,
                     'net_price' => $price,
+                    'loader_fee' => $loader_fee,
                     'car_fee' => $car_fee,
+                    'car_transport' => $car_transport,
+                    'gross_total' => $gross_total,
                     'driver_fee' => $driver_fee,
                     'net_total' => $net_total,
                     'net_income' => $net_income
@@ -158,6 +166,7 @@ class PlantationController extends Controller
             return new PlantationResource($plantation);
 
         } catch (\Exception $exception) {
+            DB::rollBack();
             abort(403, $exception->getCode() . ' ' . $exception->getMessage());
         }
     }
@@ -179,7 +188,7 @@ class PlantationController extends Controller
         DB::beginTransaction();
         try {
             $validator = Validator::make($request->only([
-                'trade_date', 'trade_cost', 'car_id', 'driver_id', 'land_id', 'net_weight', 'net_price', 'car_fee', 'driver_fee'
+                'trade_date', 'trade_cost', 'car_id', 'driver_id', 'land_id', 'net_weight', 'net_price', 'car_fee', 'driver_fee', 'loader_land_fee', 'car_transport'
             ]), [
                 'trade_date' => 'required|date|before_or_equal:' . $now->toDateString(),
                 'trade_cost' => 'required|numeric|min:1',
@@ -188,6 +197,8 @@ class PlantationController extends Controller
                 'car_id' => 'required|exists:cars,id',
                 'driver_id' => 'required|exists:drivers,id',
                 'car_fee' => 'required|numeric|min:1',
+                'car_transport' => 'required|numeric|min:1',
+                'loader_land_fee' => 'required|numeric|min:1',
                 'driver_fee' => 'required|numeric|min:1',
                 'land_id' => 'required|array',
                 'land_id.*' => 'exists:lands,id'
@@ -205,13 +216,16 @@ class PlantationController extends Controller
 
             $driver_fee = $request->driver_fee;
             $car_fee = $request->car_fee;
+            $loader_fee = $request->loader_land_fee;
+            $car_transport = $request->car_transport;
 
             $driver_cost = $driver_fee * $net_weight;
             $car_cost = $car_fee * $net_weight;
+            $loader_cost = $loader_fee * $net_weight;
 
             $net_total = $price * $net_weight;
 
-            $gross_total = $trade_cost + $driver_cost + $car_cost;
+            $gross_total = $trade_cost + $driver_cost + $car_cost + $loader_cost + $car_transport;
 
             $net_income = $net_total - $gross_total;
 
@@ -222,10 +236,13 @@ class PlantationController extends Controller
                 'user_id' => auth()->id(),
                 'trade_date' => Carbon::createFromFormat('Y/m/d H:i:s', $request->trade_date . ' ' . $now->format('H:i:s')),
                 'trade_cost' => $trade_cost,
-                'car_fee' => $car_fee,
-                'driver_fee' => $driver_fee,
                 'net_weight' => $net_weight,
                 'net_price' => $price,
+                'loader_fee' => $loader_fee,
+                'car_fee' => $car_fee,
+                'car_transport' => $car_transport,
+                'gross_total' => $gross_total,
+                'driver_fee' => $driver_fee,
                 'net_total' => $net_total,
                 'net_income' => $net_income
             ]);
@@ -270,6 +287,7 @@ class PlantationController extends Controller
             return new PlantationResource($plantation);
 
         } catch (\Exception $exception) {
+            DB::rollBack();
             abort(403, $exception->getCode() . ' ' . $exception->getMessage());
         }
     }

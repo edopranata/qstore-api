@@ -29,6 +29,8 @@ class BuyPalmResource extends JsonResource
             'net_price' => $this->net_price,
             'driver_fee' => $this->driver_fee,
             'car_fee' => $this->car_fee,
+            'car_transport' => $this->car_transport,
+            'loader_fee' => $this->loader_fee,
             'customer_average_price' => $this->customer_average_price,
             'customer_total_price' => $this->customer_total_price,
             'customer_total_weight' => $this->customer_total_weight,

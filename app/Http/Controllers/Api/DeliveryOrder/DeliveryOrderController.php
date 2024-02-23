@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Api\Transaction;
+namespace App\Http\Controllers\Api\DeliveryOrder;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Data\Customer\CustomerResource;
