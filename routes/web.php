@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\Car;
+use App\Models\Invoice;
 use Carbon\Carbon;
 use Carbon\CarbonPeriod;
 use Illuminate\Support\Arr;
@@ -153,7 +154,6 @@ Route::get('recap', function () {
         $now = Carbon::create($params['year'], $params['month'], 01);
         $periods = CarbonPeriod::create($now->startOfMonth()->toDateString(), $now->endOfMonth()->toDateString());
 
-//            dd($data);
         foreach ($periods as $key => $period) {
             $month = $period->format('m');
             $year = $period->format('Y');
@@ -173,8 +173,6 @@ Route::get('recap', function () {
                 $report[$key]['price_per_wide'] = collect($lands)->where('year', (int)$year)->where('month', (int)$month)->where('day', (int)$day)->avg('price_per_wide');
                 $report[$key]['price_per_tree'] = collect($lands)->where('year', (int)$year)->where('month', (int)$month)->where('day', (int)$day)->avg('price_per_tree');
             }
-
-
         }
     } else {
         $cur_month = Carbon::now()->format('m');
@@ -194,8 +192,6 @@ Route::get('recap', function () {
                 $report[$key]['count'] = collect($lands)->where('year', (int)$year)->where('month', (int)$month)->count();
 
             }
-
-
             $current->addMonth();
         }
     }
@@ -209,53 +205,62 @@ Route::get('recap', function () {
 
 
 Route::get('tes', function () {
-    $params = array();
-    $params['type'] = 'Annual';
-    $params['land_id'] = [2];
-    $params['period_start'] = Carbon::create(2023, 01, 01);
-    $params['period_end'] = Carbon::create(2024, 02, 21);
+    $data = Invoice::query()
+        ->with('customer')
+        ->withWhereHas('detail_trades')
+        ->withWhereHas('loan_details')
+//        ->with(['loan_details', 'customer', 'detail_do', 'detail_trades'])
+        ->get();
+
+    return $data;
+
+//    $params = array();
+//    $params['type'] = 'Annual';
+//    $params['land_id'] = [2];
+//    $params['period_start'] = Carbon::create(2023, 01, 01);
+//    $params['period_end'] = Carbon::create(2024, 02, 21);
 //    $params['year'] = 2024;
 //    $params['month'] = 02;
 
-    $lands = DB::table('plantation_details', 'pd')
-        ->join(DB::raw('plantations p'), 'pd.plantation_id', '=', 'p.id')
-        ->whereIn('pd.land_id', $params['land_id'])
-        ->when(Arr::exists($params, 'period_start'), function (\Illuminate\Database\Query\Builder $builder) use ($params) {
-            $builder->where('p.trade_date', '>=', $params['period_start']);
-        })
-        ->when(Arr::exists($params, 'period_end'), function (\Illuminate\Database\Query\Builder $builder) use ($params) {
-            $builder->where('p.trade_date', '<=', $params['period_end']);
-        })
-        ->when(Arr::exists($params, 'year'), function (\Illuminate\Database\Query\Builder $builder) use ($params) {
-            $builder->whereYear('p.trade_date', $params['year']);
-        })
-        ->when(Arr::exists($params, 'month'), function (\Illuminate\Database\Query\Builder $builder) use ($params) {
-            $builder->whereMonth('p.trade_date', $params['month']);
-        })
-        ->get()
-        ->map(function ($land) {
-            $trade_date = Carbon::parse($land->trade_date);
-            $weight_per_wide = $land->net_weight / $land->wide_total;
-            $weight_per_tree = $land->net_weight / $land->trees_total;
-            return [
-                'trade_date' => $trade_date->format('d F Y'),
-                'day' => (int)$trade_date->format('d'),
-                'month' => (int)$trade_date->format('m'),
-                'year' => (int)$trade_date->format('Y'),
-                'wide' => $land->wide,
-                'trees' => $land->trees,
-                'weight_per_wide' => $weight_per_wide,
-                'weight_per_tree' => $weight_per_tree,
-                'net_price' => $land->net_price,
-                'price_per_wide' => $land->net_price * $weight_per_wide,
-                'price_per_tree' => $land->net_price * $weight_per_tree,
-
-            ];
-        });
-
-    return response()->json([
-        'data' => $lands,
-    ]);
+//    $lands = DB::table('plantation_details', 'pd')
+//        ->join(DB::raw('plantations p'), 'pd.plantation_id', '=', 'p.id')
+//        ->whereIn('pd.land_id', $params['land_id'])
+//        ->when(Arr::exists($params, 'period_start'), function (\Illuminate\Database\Query\Builder $builder) use ($params) {
+//            $builder->where('p.trade_date', '>=', $params['period_start']);
+//        })
+//        ->when(Arr::exists($params, 'period_end'), function (\Illuminate\Database\Query\Builder $builder) use ($params) {
+//            $builder->where('p.trade_date', '<=', $params['period_end']);
+//        })
+//        ->when(Arr::exists($params, 'year'), function (\Illuminate\Database\Query\Builder $builder) use ($params) {
+//            $builder->whereYear('p.trade_date', $params['year']);
+//        })
+//        ->when(Arr::exists($params, 'month'), function (\Illuminate\Database\Query\Builder $builder) use ($params) {
+//            $builder->whereMonth('p.trade_date', $params['month']);
+//        })
+//        ->get()
+//        ->map(function ($land) {
+//            $trade_date = Carbon::parse($land->trade_date);
+//            $weight_per_wide = $land->net_weight / $land->wide_total;
+//            $weight_per_tree = $land->net_weight / $land->trees_total;
+//            return [
+//                'trade_date' => $trade_date->format('d F Y'),
+//                'day' => (int)$trade_date->format('d'),
+//                'month' => (int)$trade_date->format('m'),
+//                'year' => (int)$trade_date->format('Y'),
+//                'wide' => $land->wide,
+//                'trees' => $land->trees,
+//                'weight_per_wide' => $weight_per_wide,
+//                'weight_per_tree' => $weight_per_tree,
+//                'net_price' => $land->net_price,
+//                'price_per_wide' => $land->net_price * $weight_per_wide,
+//                'price_per_tree' => $land->net_price * $weight_per_tree,
+//
+//            ];
+//        });
+//
+//    return response()->json([
+//        'data' => $lands,
+//    ]);
 //    $year = now()->format('Y');
 //    $car_id = [1,2,3,4,5,6];
 //    $plantations = \App\Models\Plantation::query()
