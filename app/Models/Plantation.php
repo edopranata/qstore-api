@@ -25,7 +25,7 @@ class Plantation extends Model
 
     public function details(): HasMany
     {
-        return $this->hasMany(PlantationDetails::class)->withTrashed();
+        return $this->hasMany(PlantationDetails::class);
     }
 
     public function user(): BelongsTo

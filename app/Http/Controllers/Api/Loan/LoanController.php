@@ -11,6 +11,7 @@ use App\Models\Invoice;
 use App\Models\Loan;
 use App\Models\LoanDetails;
 use Carbon\Carbon;
+use Closure;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -71,7 +72,13 @@ class LoanController extends Controller
             'installment',
         ]), [
             'customer_id' => 'required|exists:' . $type . ',id',
-            'installment' => 'required|numeric',
+            'installment' => ['required', 'numeric', function (string $attribute, mixed $value, Closure $fail) use ($loan) {
+                $ending_balance = $loan->balance + $value;
+                $balance = number_format($loan->balance);
+                if ($ending_balance < 0) {
+                    $fail("The {$attribute} is invalid. loan balance is {$balance}");
+                }
+            }],
         ]);
 
         if ($validator->fails()) {
@@ -81,9 +88,80 @@ class LoanController extends Controller
         $data['user_id'] = auth()->id();
         $data['opening_balance'] = $loan->balance;
         $data['balance'] = $request->installment;
-        $data['trade_date'] = $request->trade_date ?? now();
+        $data['trade_date'] = $trade_date ?? now();
 
         return $this->extracted($loan, $data, $trade_date, $request, $customer_type);
+    }
+
+    /**
+     * @param Loan $loan
+     * @param array $data
+     * @param \Illuminate\Support\Carbon|Carbon $trade_date
+     * @param Request $request
+     * @param Customer|Driver $customer_type
+     * @return InvoiceResource|void
+     */
+    public function extracted(Loan $loan, array $data, \Illuminate\Support\Carbon|Carbon $trade_date, Request $request, Customer|Driver $customer_type)
+    {
+        DB::beginTransaction();
+        try {
+            $details = $this->saveLoanDetails($loan, $data);
+
+            $type = 'LN';
+            $sequence = $this->getLastSequence($trade_date, $type);
+            $invoice_number = 'MM' . $type . $trade_date->format('Y') . sprintf('%08d', $sequence);
+
+            // Create Invoice
+            $invoice = Invoice::query()
+                ->create([
+                    'user_id' => auth()->id(),
+                    'trade_date' => $trade_date,
+                    'customer_id' => $request->customer_id,
+                    'customer_type' => get_class($customer_type),
+                    'invoice_number' => $invoice_number,
+                    'type' => $type,
+                    'sequence' => $sequence,
+                ]);
+
+            // Create Invoice Loan
+            $invoice->loan()->create([
+                'loan_details_id' => $details->id
+            ]);
+
+            $loan->update([
+                'balance' => $loan->balance + $data['balance'],
+            ]);
+            DB::commit();
+
+            return new InvoiceResource($invoice);
+
+        } catch (\Exception $exception) {
+            DB::rollBack();
+            abort(403, $exception->getCode() . ' ' . $exception->getMessage());
+        }
+    }
+
+    private function saveLoanDetails(Loan $loan, array $data): Model
+    {
+        return $loan->details()
+            ->create($data);
+    }
+
+    public function create(Request $request): JsonResponse
+    {
+        $drivers = Driver::query()->doesntHave('loan')->select('id', 'name', 'phone', DB::raw('"driver" as type'))->get();
+        $customers = Customer::query()->doesntHave('loan')->select('id', 'name', 'phone', 'type')->get();
+        return response()->json([
+            'customers' => $customers->merge($drivers),
+        ], 201);
+    }
+
+    /**
+     * Update the specified resource in storage.
+     */
+    public function update(Request $request, string $id)
+    {
+        //
     }
 
     public function addLoan(Loan $loan, Request $request): InvoiceResource|JsonResponse|null
@@ -163,90 +241,6 @@ class LoanController extends Controller
 
             $type = 'LN';
             $sequence = $this->getLastSequence($details->trade_date, $type);
-            $invoice_number = 'MM'.$type. $trade_date->format('Y') . sprintf('%08d', $sequence);
-
-            // Create Invoice
-            $invoice = Invoice::query()
-                ->create([
-                    'user_id' => auth()->id(),
-                    'trade_date' => $trade_date,
-                    'customer_id' => $request->customer_id,
-                    'customer_type' => get_class($customer_type),
-                    'invoice_number' => $invoice_number,
-                    'type' => $type,
-                    'sequence' => $sequence,
-                ]);
-
-            // Create Invoice Loan
-            $invoice->loan()->create([
-                'loan_details_id'    => $details->id
-            ]);
-
-            DB::commit();
-
-            return new InvoiceResource($invoice);
-
-        } catch (\Exception $exception) {
-            abort(403, $exception->getCode() . ' ' . $exception->getMessage());
-        }
-
-    }
-
-    public function create(Request $request): JsonResponse
-    {
-        $drivers = Driver::query()->doesntHave('loan')->select('id', 'name', 'phone', DB::raw('"driver" as type'))->get();
-        $customers = Customer::query()->doesntHave('loan')->select('id', 'name', 'phone', 'type')->get();
-        return response()->json([
-            'customers' => $drivers->merge($customers),
-        ], 201);
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
-    }
-
-    private function saveLoanDetails(Loan $loan, array $data): Model
-    {
-        return $loan->details()
-            ->create($data);
-    }
-
-    /**
-     * @param Loan $loan
-     * @param array $data
-     * @param \Illuminate\Support\Carbon|Carbon $trade_date
-     * @param Request $request
-     * @param Customer|Driver $customer_type
-     * @return InvoiceResource|void
-     */
-    public function extracted(Loan $loan, array $data, \Illuminate\Support\Carbon|Carbon $trade_date, Request $request, Customer|Driver $customer_type)
-    {
-        DB::beginTransaction();
-        try {
-            $details = $this->saveLoanDetails($loan, $data);
-
-            $type = 'LN';
-            $sequence = $this->getLastSequence($trade_date, $type);
             $invoice_number = 'MM' . $type . $trade_date->format('Y') . sprintf('%08d', $sequence);
 
             // Create Invoice
@@ -266,17 +260,30 @@ class LoanController extends Controller
                 'loan_details_id' => $details->id
             ]);
 
-            $loan->update([
-                'balance' => $loan->balance + $data['balance'],
-            ]);
             DB::commit();
 
             return new InvoiceResource($invoice);
 
         } catch (\Exception $exception) {
-            DB::rollBack();
             abort(403, $exception->getCode() . ' ' . $exception->getMessage());
         }
+
+    }
+
+    /**
+     * Display the specified resource.
+     */
+    public function show(string $id)
+    {
+        //
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     */
+    public function destroy(string $id)
+    {
+        //
     }
 
 }

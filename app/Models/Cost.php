@@ -23,12 +23,12 @@ class Cost extends Model
 
     public function user(): BelongsTo
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class)->withTrashed();
     }
 
     public function subject(): MorphTo
     {
-        return $this->morphTo('subject');
+        return $this->morphTo('subject')->withTrashed();
     }
 
 

@@ -4,7 +4,6 @@ use App\Http\Controllers\Api\Car\CarController;
 use App\Http\Controllers\Api\Car\DriverController;
 use App\Http\Controllers\Api\DeliveryOrder\CustomerController;
 use App\Http\Controllers\Api\DeliveryOrder\DeliveryOrderController;
-use App\Http\Controllers\Api\Invoice\InvoiceDataController;
 use App\Http\Controllers\Api\Invoice\InvoiceDeliveryOrderController;
 use App\Http\Controllers\Api\Loan\LoanController;
 use App\Http\Controllers\Api\Management\PermissionController;
@@ -24,8 +23,6 @@ use App\Http\Controllers\Api\Trading\FarmerController;
 use App\Http\Controllers\Api\Trading\InvoiceFarmersController;
 use App\Http\Controllers\Api\Trading\TradingController;
 use App\Http\Controllers\Api\Trading\TradingDetailsController;
-use App\Http\Controllers\Api\Transaction\TradeBuyController;
-use App\Http\Controllers\Api\Transaction\TradeBuyDetailsController;
 use App\Http\Controllers\CarCostController;
 use App\Http\Controllers\PlantationCostController;
 use App\Http\Controllers\TradingCostController;
@@ -72,6 +69,17 @@ Route::group(['prefix' => 'mobil', 'as' => 'mobil.'], function (){
         Route::post('/', [DriverController::class, 'store'])->name('simpanDataSupir')->middleware('permission:app.mobil.dataSupir.simpanDataSupir');
         Route::patch('/{driver}', [DriverController::class, 'update'])->name('updateDataSupir')->middleware('permission:app.mobil.dataSupir.updateDataSupir');
         Route::delete('/{driver}', [DriverController::class, 'destroy'])->name('hapusDataSupir')->middleware('permission:app.mobil.dataSupir.hapusDataSupir');
+    });
+
+    Route::group(['prefix' => 'dataPinjamanSupir', 'as' => 'dataPinjamanSupir.'], function () {
+        Route::get('', [LoanController::class, 'index'])->name('index')->middleware('permission:app.mobil.dataPinjamanSupir.index');
+        Route::post('/{loan}/add', [LoanController::class, 'addLoan'])->name('tambahPinjaman')->middleware('permission:app.mobil.dataPinjamanSupir.tambahPinjaman');
+        Route::post('/{loan}/installment', [LoanController::class, 'installmentLoan'])->name('angsurPinjaman')->middleware('permission:app.mobil.dataPinjamanSupir.angsurPinjaman');
+    });
+
+    Route::group(['prefix' => 'pinjamanBaru', 'as' => 'pinjamanBaru.'], function () {
+        Route::get('', [LoanController::class, 'create'])->name('index')->middleware('permission:app.mobil.pinjamanBaru.index');
+        Route::post('', [LoanController::class, 'store'])->name('simpanPinjamanBaru')->middleware('permission:app.mobil.pinjamanBaru.simpanPinjamanBaru');
     });
 });
 
@@ -187,80 +195,78 @@ Route::group(['prefix' => 'deliveryOrder', 'as' => 'deliveryOrder.'], function (
 
 
 
-
-
-Route::group(['prefix' => 'masterData', 'as' => 'masterData.'], function () {
-    Route::group(['prefix' => 'mobil', 'as' => 'mobil.'], function () {
-        Route::get('', [CarController::class, 'index'])->name('index')->middleware('permission:app.masterData.mobil.index');
-        Route::post('/', [CarController::class, 'store'])->name('createCar')->middleware('permission:app.masterData.mobil.createCar');
-        Route::patch('/{car}', [CarController::class, 'update'])->name('updateCar')->middleware('permission:app.masterData.mobil.updateCar');
-        Route::delete('/{car}', [CarController::class, 'destroy'])->name('deleteCar')->middleware('permission:app.masterData.mobil.deleteCar');
-    });
-    Route::group(['prefix' => 'supir', 'as' => 'supir.'], function () {
-        Route::get('', [DriverController::class, 'index'])->name('index')->middleware('permission:app.masterData.supir.index');
-        Route::post('/', [DriverController::class, 'store'])->name('createDriver')->middleware('permission:app.masterData.supir.createDriver');
-        Route::patch('/{driver}', [DriverController::class, 'update'])->name('updateDriver')->middleware('permission:app.masterData.supir.updateDriver');
-        Route::delete('/{driver}', [DriverController::class, 'destroy'])->name('deleteDriver')->middleware('permission:app.masterData.supir.deleteDriver');
-    });
-    Route::group(['prefix' => 'pelanggan', 'as' => 'pelanggan.'], function () {
-        Route::get('', [CustomerController::class, 'index'])->name('index')->middleware('permission:app.masterData.pelanggan.index');
-        Route::post('/', [CustomerController::class, 'store'])->name('createCustomer')->middleware('permission:app.masterData.pelanggan.createCustomer');
-        Route::patch('/{customer}', [CustomerController::class, 'update'])->name('updateCustomer')->middleware('permission:app.masterData.pelanggan.updateCustomer');
-        Route::delete('/{customer}', [CustomerController::class, 'destroy'])->name('deleteCustomer')->middleware('permission:app.masterData.pelanggan.deleteCustomer');
-    });
-    Route::group(['prefix' => 'wilayah', 'as' => 'wilayah.'], function () {
-        Route::get('', [AreaController::class, 'index'])->name('index')->middleware('permission:app.masterData.wilayah.index');
-        Route::post('/', [AreaController::class, 'store'])->name('createArea')->middleware('permission:app.masterData.wilayah.createArea');
-        Route::patch('/{area}', [AreaController::class, 'update'])->name('updateArea')->middleware('permission:app.masterData.wilayah.updateArea');
-        Route::delete('/{area}', [AreaController::class, 'destroy'])->name('deleteArea')->middleware('permission:app.masterData.wilayah.deleteArea');
-    });
-    Route::group(['prefix' => 'lahan', 'as' => 'lahan.'], function () {
-        Route::get('', [LandController::class, 'index'])->name('index')->middleware('permission:app.masterData.lahan.index');
-        Route::post('/', [LandController::class, 'store'])->name('createLand')->middleware('permission:app.masterData.lahan.createLand');
-        Route::patch('/{land}', [LandController::class, 'update'])->name('updateLand')->middleware('permission:app.masterData.lahan.updateLand');
-        Route::delete('/{land}', [LandController::class, 'destroy'])->name('deleteLand')->middleware('permission:app.masterData.lahan.deleteLand');
-    });
-});
-Route::group(['prefix' => 'pinjaman', 'as' => 'pinjaman.'], function () {
-    Route::group(['prefix' => 'dataPinjaman', 'as' => 'dataPinjaman.'], function () {
-        Route::get('', [LoanController::class, 'index'])->name('index')->middleware('permission:app.pinjaman.dataPinjaman.index');
-        Route::post('/{loan}/add', [LoanController::class, 'addLoan'])->name('tambahPinjaman')->middleware('permission:app.pinjaman.dataPinjaman.tambahPinjaman');
-        Route::post('/{loan}/installment', [LoanController::class, 'installmentLoan'])->name('angsurPinjaman')->middleware('permission:app.pinjaman.dataPinjaman.angsurPinjaman');
-
-    });
-    Route::group(['prefix' => 'pinjamanBaru', 'as' => 'pinjamanBaru.'], function () {
-        Route::get('', [LoanController::class, 'create'])->name('index')->middleware('permission:app.pinjaman.pinjamanBaru.index');
-        Route::post('', [LoanController::class, 'store'])->name('simpanPinjamanBaru')->middleware('permission:app.pinjaman.pinjamanBaru.simpanPinjamanBaru');
-    });
-});
-Route::group(['prefix' => 'transaction', 'as' => 'transaction.'], function () {
-    Route::group(['prefix' => 'pembelianSawit', 'as' => 'pembelianSawit.'], function () {
-        Route::get('', [TradeBuyController::class, 'index'])->name('index')->middleware('permission:app.transaction.pembelianSawit.index');
-        Route::post('/', [TradeBuyController::class, 'store'])->name('createTransaction')->middleware('permission:app.transaction.pembelianSawit.createTransaction');
-        Route::patch('/{trade}', [TradeBuyController::class, 'update'])->name('updateTransaction')->middleware('permission:app.transaction.pembelianSawit.updateTransaction');
-        Route::delete('/{trade}', [TradeBuyController::class, 'destroy'])->name('deleteTransaction')->middleware('permission:app.transaction.pembelianSawit.deleteTransaction');
-        Route::patch('/{trade}/details', [TradeBuyController::class, 'updateFactory'])->name('createFactoryTransaction')->middleware('permission:app.transaction.pembelianSawit.createFactoryTransaction');
-        Route::get('/{trade}/details', [TradeBuyController::class, 'show'])->name('viewDetailsTransaction')->middleware('permission:app.transaction.pembelianSawit.viewDetailsTransaction');
-
-        Route::post('/{trade}/details', [TradeBuyDetailsController::class, 'store'])->name('createDetailsTransaction')->middleware('permission:app.transaction.pembelianSawit.createDetailsTransaction');
-        Route::delete('/{trade}/details/{details}', [TradeBuyDetailsController::class, 'destroy'])->scopeBindings()->name('deleteDetailsTransaction')->middleware('permission:app.transaction.pembelianSawit.deleteDetailsTransaction');
-        Route::patch('/{trade}/details/{details}', [TradeBuyDetailsController::class, 'update'])->scopeBindings()->name('updateDetailsTransaction')->middleware('permission:app.transaction.pembelianSawit.updateDetailsTransaction');
-    });
-
-    Route::group(['prefix' => 'hasilKebun', 'as' => 'hasilKebun.'], function () {
-        Route::get('', [PlantationController::class, 'index'])->name('index')->middleware('permission:app.transaction.hasilKebun.index');
-        Route::post('/', [PlantationController::class, 'store'])->name('createHasilKebun')->middleware('permission:app.transaction.hasilKebun.createHasilKebun');
-        Route::patch('/{plantation}', [PlantationController::class, 'update'])->name('updateHasilKebun')->middleware('permission:app.transaction.hasilKebun.updateHasilKebun');
-        Route::delete('/{plantation}', [PlantationController::class, 'destroy'])->name('deleteHasilKebun')->middleware('permission:app.transaction.hasilKebun.deleteHasilKebun');
-    });
-
-    Route::group(['prefix' => 'deliveryOrders', 'as' => 'deliveryOrders.'], function () {
-        Route::get('', [DeliveryOrderController::class, 'index'])->name('index')->middleware('permission:app.transaction.deliveryOrders.index');
-        Route::post('/', [DeliveryOrderController::class, 'store'])->name('createDeliveryOrder')->middleware('permission:app.transaction.deliveryOrders.createDeliveryOrder');
-        Route::patch('/{delivery}', [DeliveryOrderController::class, 'update'])->name('updateDeliveryOrder')->middleware('permission:app.transaction.deliveryOrders.updateDeliveryOrder');
-        Route::delete('/{delivery}', [DeliveryOrderController::class, 'destroy'])->name('deleteDeliveryOrder')->middleware('permission:app.transaction.deliveryOrders.deleteDeliveryOrder');
-    });
-});
+//Route::group(['prefix' => 'masterData', 'as' => 'masterData.'], function () {
+//    Route::group(['prefix' => 'mobil', 'as' => 'mobil.'], function () {
+//        Route::get('', [CarController::class, 'index'])->name('index')->middleware('permission:app.masterData.mobil.index');
+//        Route::post('/', [CarController::class, 'store'])->name('createCar')->middleware('permission:app.masterData.mobil.createCar');
+//        Route::patch('/{car}', [CarController::class, 'update'])->name('updateCar')->middleware('permission:app.masterData.mobil.updateCar');
+//        Route::delete('/{car}', [CarController::class, 'destroy'])->name('deleteCar')->middleware('permission:app.masterData.mobil.deleteCar');
+//    });
+//    Route::group(['prefix' => 'supir', 'as' => 'supir.'], function () {
+//        Route::get('', [DriverController::class, 'index'])->name('index')->middleware('permission:app.masterData.supir.index');
+//        Route::post('/', [DriverController::class, 'store'])->name('createDriver')->middleware('permission:app.masterData.supir.createDriver');
+//        Route::patch('/{driver}', [DriverController::class, 'update'])->name('updateDriver')->middleware('permission:app.masterData.supir.updateDriver');
+//        Route::delete('/{driver}', [DriverController::class, 'destroy'])->name('deleteDriver')->middleware('permission:app.masterData.supir.deleteDriver');
+//    });
+//    Route::group(['prefix' => 'pelanggan', 'as' => 'pelanggan.'], function () {
+//        Route::get('', [CustomerController::class, 'index'])->name('index')->middleware('permission:app.masterData.pelanggan.index');
+//        Route::post('/', [CustomerController::class, 'store'])->name('createCustomer')->middleware('permission:app.masterData.pelanggan.createCustomer');
+//        Route::patch('/{customer}', [CustomerController::class, 'update'])->name('updateCustomer')->middleware('permission:app.masterData.pelanggan.updateCustomer');
+//        Route::delete('/{customer}', [CustomerController::class, 'destroy'])->name('deleteCustomer')->middleware('permission:app.masterData.pelanggan.deleteCustomer');
+//    });
+//    Route::group(['prefix' => 'wilayah', 'as' => 'wilayah.'], function () {
+//        Route::get('', [AreaController::class, 'index'])->name('index')->middleware('permission:app.masterData.wilayah.index');
+//        Route::post('/', [AreaController::class, 'store'])->name('createArea')->middleware('permission:app.masterData.wilayah.createArea');
+//        Route::patch('/{area}', [AreaController::class, 'update'])->name('updateArea')->middleware('permission:app.masterData.wilayah.updateArea');
+//        Route::delete('/{area}', [AreaController::class, 'destroy'])->name('deleteArea')->middleware('permission:app.masterData.wilayah.deleteArea');
+//    });
+//    Route::group(['prefix' => 'lahan', 'as' => 'lahan.'], function () {
+//        Route::get('', [LandController::class, 'index'])->name('index')->middleware('permission:app.masterData.lahan.index');
+//        Route::post('/', [LandController::class, 'store'])->name('createLand')->middleware('permission:app.masterData.lahan.createLand');
+//        Route::patch('/{land}', [LandController::class, 'update'])->name('updateLand')->middleware('permission:app.masterData.lahan.updateLand');
+//        Route::delete('/{land}', [LandController::class, 'destroy'])->name('deleteLand')->middleware('permission:app.masterData.lahan.deleteLand');
+//    });
+//});
+//Route::group(['prefix' => 'pinjaman', 'as' => 'pinjaman.'], function () {
+//    Route::group(['prefix' => 'dataPinjaman', 'as' => 'dataPinjaman.'], function () {
+//        Route::get('', [LoanController::class, 'index'])->name('index')->middleware('permission:app.pinjaman.dataPinjaman.index');
+//        Route::post('/{loan}/add', [LoanController::class, 'addLoan'])->name('tambahPinjaman')->middleware('permission:app.pinjaman.dataPinjaman.tambahPinjaman');
+//        Route::post('/{loan}/installment', [LoanController::class, 'installmentLoan'])->name('angsurPinjaman')->middleware('permission:app.pinjaman.dataPinjaman.angsurPinjaman');
+//
+//    });
+//    Route::group(['prefix' => 'pinjamanBaru', 'as' => 'pinjamanBaru.'], function () {
+//        Route::get('', [LoanController::class, 'create'])->name('index')->middleware('permission:app.pinjaman.pinjamanBaru.index');
+//        Route::post('', [LoanController::class, 'store'])->name('simpanPinjamanBaru')->middleware('permission:app.pinjaman.pinjamanBaru.simpanPinjamanBaru');
+//    });
+//});
+//Route::group(['prefix' => 'transaction', 'as' => 'transaction.'], function () {
+//    Route::group(['prefix' => 'pembelianSawit', 'as' => 'pembelianSawit.'], function () {
+//        Route::get('', [TradeBuyController::class, 'index'])->name('index')->middleware('permission:app.transaction.pembelianSawit.index');
+//        Route::post('/', [TradeBuyController::class, 'store'])->name('createTransaction')->middleware('permission:app.transaction.pembelianSawit.createTransaction');
+//        Route::patch('/{trade}', [TradeBuyController::class, 'update'])->name('updateTransaction')->middleware('permission:app.transaction.pembelianSawit.updateTransaction');
+//        Route::delete('/{trade}', [TradeBuyController::class, 'destroy'])->name('deleteTransaction')->middleware('permission:app.transaction.pembelianSawit.deleteTransaction');
+//        Route::patch('/{trade}/details', [TradeBuyController::class, 'updateFactory'])->name('createFactoryTransaction')->middleware('permission:app.transaction.pembelianSawit.createFactoryTransaction');
+//        Route::get('/{trade}/details', [TradeBuyController::class, 'show'])->name('viewDetailsTransaction')->middleware('permission:app.transaction.pembelianSawit.viewDetailsTransaction');
+//
+//        Route::post('/{trade}/details', [TradeBuyDetailsController::class, 'store'])->name('createDetailsTransaction')->middleware('permission:app.transaction.pembelianSawit.createDetailsTransaction');
+//        Route::delete('/{trade}/details/{details}', [TradeBuyDetailsController::class, 'destroy'])->scopeBindings()->name('deleteDetailsTransaction')->middleware('permission:app.transaction.pembelianSawit.deleteDetailsTransaction');
+//        Route::patch('/{trade}/details/{details}', [TradeBuyDetailsController::class, 'update'])->scopeBindings()->name('updateDetailsTransaction')->middleware('permission:app.transaction.pembelianSawit.updateDetailsTransaction');
+//    });
+//
+//    Route::group(['prefix' => 'hasilKebun', 'as' => 'hasilKebun.'], function () {
+//        Route::get('', [PlantationController::class, 'index'])->name('index')->middleware('permission:app.transaction.hasilKebun.index');
+//        Route::post('/', [PlantationController::class, 'store'])->name('createHasilKebun')->middleware('permission:app.transaction.hasilKebun.createHasilKebun');
+//        Route::patch('/{plantation}', [PlantationController::class, 'update'])->name('updateHasilKebun')->middleware('permission:app.transaction.hasilKebun.updateHasilKebun');
+//        Route::delete('/{plantation}', [PlantationController::class, 'destroy'])->name('deleteHasilKebun')->middleware('permission:app.transaction.hasilKebun.deleteHasilKebun');
+//    });
+//
+//    Route::group(['prefix' => 'deliveryOrders', 'as' => 'deliveryOrders.'], function () {
+//        Route::get('', [DeliveryOrderController::class, 'index'])->name('index')->middleware('permission:app.transaction.deliveryOrders.index');
+//        Route::post('/', [DeliveryOrderController::class, 'store'])->name('createDeliveryOrder')->middleware('permission:app.transaction.deliveryOrders.createDeliveryOrder');
+//        Route::patch('/{delivery}', [DeliveryOrderController::class, 'update'])->name('updateDeliveryOrder')->middleware('permission:app.transaction.deliveryOrders.updateDeliveryOrder');
+//        Route::delete('/{delivery}', [DeliveryOrderController::class, 'destroy'])->name('deleteDeliveryOrder')->middleware('permission:app.transaction.deliveryOrders.deleteDeliveryOrder');
+//    });
+//});
 Route::group(['prefix' => 'biaya', 'as' => 'biaya.'], function () {
     Route::group(['prefix' => 'biayaMobil', 'as' => 'biayaMobil.'], function () {
         Route::get('/', [CarCostController::class, 'index'])->name('index')->middleware('permission:app.biaya.biayaMobil.index');
@@ -282,22 +288,23 @@ Route::group(['prefix' => 'biaya', 'as' => 'biaya.'], function () {
         Route::delete('/{cost}', [PlantationCostController::class, 'destroy'])->name('hapusBiayaKebun')->middleware('permission:app.biaya.biayaKebun.hapusBiayaKebun');
     });
 });
-Route::group(['prefix' => 'invoice', 'as' => 'invoice.'], function () {
-    Route::group(['prefix' => 'invoiceData', 'as' => 'invoiceData.'], function () {
-        Route::get('/', [InvoiceDataController::class, 'index'])->name('index')->middleware('permission:app.invoice.invoiceData.index');
-        Route::get('/{invoice:invoice_number}/print', [InvoiceDataController::class, 'show'])->name('printInvoice')->middleware('permission:app.invoice.invoiceData.printInvoice');
-    });
-
-    Route::group(['prefix' => 'buatInvoiceDO', 'as' => 'buatInvoiceDO.'], function () {
-        Route::get('/', [InvoiceDeliveryOrderController::class, 'index'])->name('index')->middleware('permission:app.invoice.buatInvoiceDO.index');
-        Route::post('/', [InvoiceDeliveryOrderController::class, 'store'])->name('simpanInvoiceDO')->middleware('permission:app.invoice.buatInvoiceDO.simpanInvoiceDO');
-    });
-    Route::group(['prefix' => 'buatInvoicePetani', 'as' => 'buatInvoicePetani.'], function () {
-        Route::get('/', [InvoiceFarmersController::class, 'index'])->name('index')->middleware('permission:app.invoice.buatInvoicePetani.index');
-        Route::post('/', [InvoiceFarmersController::class, 'store'])->name('simpanInvoicePetani')->middleware('permission:app.invoice.buatInvoicePetani.simpanInvoicePetani');
-
-    });
-});
+//
+//Route::group(['prefix' => 'invoice', 'as' => 'invoice.'], function () {
+//    Route::group(['prefix' => 'invoiceData', 'as' => 'invoiceData.'], function () {
+//        Route::get('/', [InvoiceDataController::class, 'index'])->name('index')->middleware('permission:app.invoice.invoiceData.index');
+//        Route::get('/{invoice:invoice_number}/print', [InvoiceDataController::class, 'show'])->name('printInvoice')->middleware('permission:app.invoice.invoiceData.printInvoice');
+//    });
+//
+//    Route::group(['prefix' => 'buatInvoiceDO', 'as' => 'buatInvoiceDO.'], function () {
+//        Route::get('/', [InvoiceDeliveryOrderController::class, 'index'])->name('index')->middleware('permission:app.invoice.buatInvoiceDO.index');
+//        Route::post('/', [InvoiceDeliveryOrderController::class, 'store'])->name('simpanInvoiceDO')->middleware('permission:app.invoice.buatInvoiceDO.simpanInvoiceDO');
+//    });
+//    Route::group(['prefix' => 'buatInvoicePetani', 'as' => 'buatInvoicePetani.'], function () {
+//        Route::get('/', [InvoiceFarmersController::class, 'index'])->name('index')->middleware('permission:app.invoice.buatInvoicePetani.index');
+//        Route::post('/', [InvoiceFarmersController::class, 'store'])->name('simpanInvoicePetani')->middleware('permission:app.invoice.buatInvoicePetani.simpanInvoicePetani');
+//
+//    });
+//});
 
 Route::group(['prefix' => 'laporan', 'as' => 'laporan.'], function () {
     Route::group(['prefix' => 'dataLaporan', 'as' => 'dataLaporan.'], function () {

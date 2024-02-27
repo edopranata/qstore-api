@@ -22,7 +22,7 @@ class Loan extends Model
 
     public function person(): MorphTo
     {
-        return $this->morphTo();
+        return $this->morphTo()->withTrashed();
     }
 
     public function details(): HasMany

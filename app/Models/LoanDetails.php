@@ -22,7 +22,7 @@ class LoanDetails extends Model
 
     public function transaction(): MorphTo
     {
-        return $this->morphTo();
+        return $this->morphTo()->withTrashed();
     }
 
     public function invoice(): HasOneThrough

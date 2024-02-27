@@ -2,7 +2,6 @@
 
 namespace Database\Seeders;
 
-use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Str;
@@ -89,14 +88,14 @@ class DatabaseSeeder extends Seeder
 
         $user->assignRole($administrator);
 
-        $users = User::factory()->count(rand(3, 10))->create();
-        foreach ($users as $assign) {
-            $assign->assignRole($roles[rand(0,1)]);
-        }
+//        $users = User::factory()->count(rand(3, 10))->create();
+//        foreach ($users as $assign) {
+//            $assign->assignRole($roles[rand(0,1)]);
+//        }
         $this->call([
             MenuSeeder::class,
-            RoleSeeder::class,
             SettingSeeder::class,
+            CostTypeSeeder::class,
         ]);
     }
 }
