@@ -19,9 +19,10 @@ class CostResource extends JsonResource
         return [
             'id' => $this->id,
             'trade_date' => $this->trade_date ? $this->trade_date->format('Y/m/d H:i:s') : '',
-            'type' => $this->type,
+            'cost_type' => $this->whenLoaded('cost_type'),
             'updated_at' => $this->updated_at ? $this->updated_at->format('Y/m/d H:i:s') : '',
             'created_at' => $this->created_at ? $this->created_at->format('Y/m/d H:i:s') : '',
+            'cost_type_id' => $this->cost_type_id,
             'description' => $this->description,
             'category' => $this->category,
             'amount' => $this->amount,

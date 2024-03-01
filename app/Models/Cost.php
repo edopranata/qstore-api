@@ -31,5 +31,9 @@ class Cost extends Model
         return $this->morphTo('subject')->withTrashed();
     }
 
+    public function cost_type(): BelongsTo
+    {
+        return $this->belongsTo(CostType::class)->withTrashed();
+    }
 
 }
