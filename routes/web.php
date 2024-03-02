@@ -1,7 +1,6 @@
 <?php
 
 use App\Models\Car;
-use App\Models\Invoice;
 use Carbon\Carbon;
 use Carbon\CarbonPeriod;
 use Illuminate\Support\Arr;
@@ -205,14 +204,25 @@ Route::get('recap', function () {
 
 
 Route::get('tes', function () {
-    $data = Invoice::query()
-        ->with('customer')
-        ->withWhereHas('detail_trades')
-        ->withWhereHas('loan_details')
-//        ->with(['loan_details', 'customer', 'detail_do', 'detail_trades'])
-        ->get();
+    $params = array();
+    $params['year'] = 2024;
+    $params['month'] = 01;
+    $deliveries = \App\Models\DeliveryOrder::query()
+        ->when(Arr::exists($params, 'month'), function ($builder) use ($params) {
+            $builder->whereMonth('delivery_date', $params['month']);
+        })
+        ->when(Arr::exists($params, 'year'), function ($builder) use ($params) {
+            $builder->whereYear('delivery_date', $params['year']);
+        })
+        ->get()->map(function ($delivery) {
+            return [
+                'id' => $delivery->id,
+                'type' => str($delivery->customer_type)->split('/\\\\/')->last(),
+                'date' => $delivery->delivery_date->format('Y-m-d H:i:s')
+            ];
+        });
 
-    return $data;
+    return $deliveries;
 
 //    $params = array();
 //    $params['type'] = 'Annual';

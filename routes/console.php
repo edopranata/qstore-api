@@ -36,16 +36,37 @@ Artisan::command('app:sample-data', function () {
 })->purpose('Dump sample data');
 
 Artisan::command('app:fresh-install', function () {
+    $this->info("Creating table");
+
     Artisan::call('migrate:fresh', [
-        '--force' => true
+        '--force' => true,
+        '--seed' => true,
     ]);
 
-    Artisan::call('db:seed', [
-        '--class' => 'DatabaseSeeder'
-    ]);
+    $this->info("Migrating master data (cars, customer, driver, area and land)");
 
     Artisan::call('db:seed', [
+        '--force' => true,
         '--class' => 'SampleMaster'
+    ]);
+
+    $this->info("Migrating sample cost data");
+
+    Artisan::call('db:seed', [
+        '--force' => true,
+        '--class' => 'SampleCostSeeder'
+    ]);
+
+    $this->info("Migrating sample loan data");
+    Artisan::call('db:seed', [
+        '--force' => true,
+        '--class' => 'SampleLoan'
+    ]);
+
+    $this->info("Migrating sample cost transaction");
+    Artisan::call('db:seed', [
+        '--force' => true,
+        '--class' => 'SampleTransaction'
     ]);
 })->purpose('Migrate db Installation and dump dummy data');
 

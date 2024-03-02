@@ -22,8 +22,8 @@ class TradingDetailsFactory extends Factory
         $two = [10, 20, 30, 40, 50, 60, 70, 80, 90];
         $price = $one[array_rand($one)] + $two[array_rand($two)];
         return [
-            'customer_id' => Customer::query()->where('type', 'farmers')->inRandomOrder()->first()->id,
-            'user_id' => rand(1, 4),
+            'customer_id' => Customer::query()->where('type', 'farmer')->inRandomOrder()->first()->id,
+            'user_id' => 1,
             'weight' => $weight,
             'price' => $price,
             'total' => $weight * $price,

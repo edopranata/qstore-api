@@ -13,7 +13,7 @@ class SampleLoan extends Seeder
     {
         $this->call([
             LoanSeeder::class,
-            LoanDetailsSeeder::class,
+//            LoanDetailsSeeder::class,
         ]);
     }
 }

@@ -26,6 +26,7 @@ trait TradingTrait
         $driver_fee = Arr::exists($data, 'driver_fee') ? $data['driver_fee'] : $trade->driver_fee;
         $car_transport = Arr::exists($data, 'car_transport') ? $data['car_transport'] : $trade->car_transport;
         $loader_fee = Arr::exists($data, 'loader_fee') ? $data['loader_fee'] : $trade->loader_fee;
+        $trade_status = Arr::exists($data, 'trade_status') ? $data['trade_status'] : null;
         $driver_cost = $net_weight * $driver_fee;
         $car_cost = $net_weight * $car_fee;
         $loader_cost = $net_weight * $loader_fee;
@@ -54,6 +55,7 @@ trait TradingTrait
             'car_fee' => $car_fee,
             'cost_total' => $cost_total,
             'net_income' => $net_income,
+            'trade_status' => $trade_status,
         ];
 
         $trade->update($data_update);

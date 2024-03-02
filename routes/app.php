@@ -26,7 +26,6 @@ use App\Http\Controllers\Api\Trading\InvoiceFarmersController;
 use App\Http\Controllers\Api\Trading\TradingController;
 use App\Http\Controllers\Api\Trading\TradingCostController;
 use App\Http\Controllers\Api\Trading\TradingDetailsController;
-use App\Http\Controllers\CarCostController;
 use Illuminate\Support\Facades\Route;
 
 Route::group(['prefix' => 'management', 'as' => 'management.'], function () {
@@ -290,27 +289,27 @@ Route::group(['prefix' => 'deliveryOrder', 'as' => 'deliveryOrder.'], function (
 //        Route::delete('/{delivery}', [DeliveryOrderController::class, 'destroy'])->name('deleteDeliveryOrder')->middleware('permission:app.transaction.deliveryOrders.deleteDeliveryOrder');
 //    });
 //});
-Route::group(['prefix' => 'biaya', 'as' => 'biaya.'], function () {
-    Route::group(['prefix' => 'biayaMobil', 'as' => 'biayaMobil.'], function () {
-        Route::get('/', [CarCostController::class, 'index'])->name('index')->middleware('permission:app.biaya.biayaMobil.index');
-        Route::post('/', [CarCostController::class, 'store'])->name('simpanBiayaMobil')->middleware('permission:app.biaya.biayaMobil.simpanBiayaMobil');
-        Route::patch('/{cost}', [CarCostController::class, 'update'])->name('ubahBiayaMobil')->middleware('permission:app.biaya.biayaMobil.ubahBiayaMobil');
-        Route::delete('/{cost}', [CarCostController::class, 'destroy'])->name('hapusBiayaMobil')->middleware('permission:app.biaya.biayaMobil.hapusBiayaMobil');
-
-    });
-    Route::group(['prefix' => 'biayaPembelianSawit', 'as' => 'biayaPembelianSawit.'], function () {
-        Route::get('/', [TradingCostController::class, 'index'])->name('index')->middleware('permission:app.biaya.biayaPembelianSawit.index');
-        Route::post('/', [TradingCostController::class, 'store'])->name('simpanPembelianSawit')->middleware('permission:app.biaya.biayaPembelianSawit.simpanPembelianSawit');
-        Route::patch('/{cost}', [TradingCostController::class, 'update'])->name('ubahPembelianSawit')->middleware('permission:app.biaya.biayaPembelianSawit.ubahPembelianSawit');
-        Route::delete('/{cost}', [TradingCostController::class, 'destroy'])->name('hapusPembelianSawit')->middleware('permission:app.biaya.biayaPembelianSawit.hapusPembelianSawit');
-    });
-    Route::group(['prefix' => 'biayaKebun', 'as' => 'biayaKebun.'], function () {
-        Route::get('/', [PlantationCostController::class, 'index'])->name('index')->middleware('permission:app.biaya.biayaKebun.index');
-        Route::post('/', [PlantationCostController::class, 'store'])->name('simpanBiayaKebun')->middleware('permission:app.biaya.biayaKebun.simpanBiayaKebun');
-        Route::patch('/{cost}', [PlantationCostController::class, 'update'])->name('ubahBiayaKebun')->middleware('permission:app.biaya.biayaKebun.ubahBiayaKebun');
-        Route::delete('/{cost}', [PlantationCostController::class, 'destroy'])->name('hapusBiayaKebun')->middleware('permission:app.biaya.biayaKebun.hapusBiayaKebun');
-    });
-});
+//Route::group(['prefix' => 'biaya', 'as' => 'biaya.'], function () {
+//    Route::group(['prefix' => 'biayaMobil', 'as' => 'biayaMobil.'], function () {
+//        Route::get('/', [CarCostController::class, 'index'])->name('index')->middleware('permission:app.biaya.biayaMobil.index');
+//        Route::post('/', [CarCostController::class, 'store'])->name('simpanBiayaMobil')->middleware('permission:app.biaya.biayaMobil.simpanBiayaMobil');
+//        Route::patch('/{cost}', [CarCostController::class, 'update'])->name('ubahBiayaMobil')->middleware('permission:app.biaya.biayaMobil.ubahBiayaMobil');
+//        Route::delete('/{cost}', [CarCostController::class, 'destroy'])->name('hapusBiayaMobil')->middleware('permission:app.biaya.biayaMobil.hapusBiayaMobil');
+//
+//    });
+//    Route::group(['prefix' => 'biayaPembelianSawit', 'as' => 'biayaPembelianSawit.'], function () {
+//        Route::get('/', [TradingCostController::class, 'index'])->name('index')->middleware('permission:app.biaya.biayaPembelianSawit.index');
+//        Route::post('/', [TradingCostController::class, 'store'])->name('simpanPembelianSawit')->middleware('permission:app.biaya.biayaPembelianSawit.simpanPembelianSawit');
+//        Route::patch('/{cost}', [TradingCostController::class, 'update'])->name('ubahPembelianSawit')->middleware('permission:app.biaya.biayaPembelianSawit.ubahPembelianSawit');
+//        Route::delete('/{cost}', [TradingCostController::class, 'destroy'])->name('hapusPembelianSawit')->middleware('permission:app.biaya.biayaPembelianSawit.hapusPembelianSawit');
+//    });
+//    Route::group(['prefix' => 'biayaKebun', 'as' => 'biayaKebun.'], function () {
+//        Route::get('/', [PlantationCostController::class, 'index'])->name('index')->middleware('permission:app.biaya.biayaKebun.index');
+//        Route::post('/', [PlantationCostController::class, 'store'])->name('simpanBiayaKebun')->middleware('permission:app.biaya.biayaKebun.simpanBiayaKebun');
+//        Route::patch('/{cost}', [PlantationCostController::class, 'update'])->name('ubahBiayaKebun')->middleware('permission:app.biaya.biayaKebun.ubahBiayaKebun');
+//        Route::delete('/{cost}', [PlantationCostController::class, 'destroy'])->name('hapusBiayaKebun')->middleware('permission:app.biaya.biayaKebun.hapusBiayaKebun');
+//    });
+//});
 //
 Route::group(['prefix' => 'invoice', 'as' => 'invoice.'], function () {
     Route::group(['prefix' => 'invoiceData', 'as' => 'invoiceData.'], function () {

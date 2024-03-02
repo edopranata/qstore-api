@@ -18,10 +18,15 @@ class TradingDetailsSeeder extends Seeder
                 'trading_id' => $trade->id,
                 'trade_date' => $trade->trade_date
             ]);
+            $avg_price =  $trade->details()->avg('price');
 
-            $trade->update(['customer_average_price' => $trade->details()->avg('price')]);
-            $trade->update(['customer_total_price' => $trade->details()->sum('total')]);
-            $trade->update(['customer_total_weight' => $trade->details()->sum('weight')]);
+            $trade->update([
+                'margin' => $trade->net_price > 0 ? $trade->net_price  - $avg_price : 0,
+                'customer_average_price' => $avg_price,
+                'customer_total_price' => $trade->details()->sum('total'),
+                'customer_total_weight' => $trade->details()->sum('weight')
+            ]);
+
         });
     }
 }
