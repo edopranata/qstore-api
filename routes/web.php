@@ -205,24 +205,157 @@ Route::get('recap', function () {
 
 Route::get('tes', function () {
     $params = array();
+    $params['type'] = 'Annual';
+//    $params['period_start'] = now()->subMonths(2);
+//    $params['period_end'] = now();
     $params['year'] = 2024;
-    $params['month'] = 01;
-    $deliveries = \App\Models\DeliveryOrder::query()
+//    $params['month'] = 02;
+
+    $tradings = \App\Models\Trading::query()
+        ->whereNotNull('trade_status')
+        ->when(Arr::exists($params, 'period_start'), function ($builder) use ($params) {
+            $builder->whereDate('trade_date', '>=', $params['period_start']);
+        })
+        ->when(Arr::exists($params, 'period_end'), function ($builder) use ($params) {
+            $builder->whereDate('trade_date', '<=', $params['period_end']);
+        })
         ->when(Arr::exists($params, 'month'), function ($builder) use ($params) {
-            $builder->whereMonth('delivery_date', $params['month']);
+            $builder->whereMonth('trade_date', $params['month']);
         })
         ->when(Arr::exists($params, 'year'), function ($builder) use ($params) {
-            $builder->whereYear('delivery_date', $params['year']);
+            $builder->whereYear('trade_date', $params['year']);
         })
-        ->get()->map(function ($delivery) {
+        ->get()->map(function ($trade) {
             return [
-                'id' => $delivery->id,
-                'type' => str($delivery->customer_type)->split('/\\\\/')->last(),
-                'date' => $delivery->delivery_date->format('Y-m-d H:i:s')
+                'id' => $trade->id,
+                'date' => $trade->trade_date->format('Y-m-d H:i:s'),
+                'day' => (int)$trade->trade_date->format('d'),
+                'month' =>(int)$trade->trade_date->format('m'),
+                'year' => (int)$trade->trade_date->format('Y'),
+                'net_weight' => $trade->net_weight,
+                'net_price' => $trade->net_price,
+                'margin' => $trade->margin,
+                'gross_total' => $trade->gross_total,
+                'cost_total' => $trade->cost_total,
+                'customer_average' => $trade->customer_average_price,
+                'customer_total' => $trade->customer_total_price,
+                'customer_weight' => $trade->customer_total_weight,
+                'net_total' => $trade->net_income,
             ];
-        });
+        })->collect();
 
-    return $deliveries;
+    return $tradings;
+
+//    $deliveries = \App\Models\DeliveryOrder::query()
+//        ->with('customer')
+//        ->when(Arr::exists($params, 'period_start'), function ($builder) use ($params) {
+//            $builder->whereDate('delivery_date', '>=', $params['period_start']);
+//        })
+//        ->when(Arr::exists($params, 'period_end'), function ($builder) use ($params) {
+//            $builder->whereDate('delivery_date', '<=', $params['period_end']);
+//        })
+//        ->when(Arr::exists($params, 'month'), function ($builder) use ($params) {
+//            $builder->whereMonth('delivery_date', $params['month']);
+//        })
+//        ->when(Arr::exists($params, 'year'), function ($builder) use ($params) {
+//            $builder->whereYear('delivery_date', $params['year']);
+//        })
+//        ->get()->map(function ($delivery) {
+//            $type = $delivery->customer_type ? str($delivery->customer_type)->split('/\\\\/')->last() : '';
+//            $customer = $delivery->customer?->name;
+//            return [
+//                'id' => $delivery->id,
+//                'type' => $type,
+//                'customer' => $customer,
+//                'date' => $delivery->delivery_date->format('Y-m-d H:i:s'),
+//                'day' => (int)$delivery->delivery_date->format('d'),
+//                'month' =>(int)$delivery->delivery_date->format('m'),
+//                'year' => (int)$delivery->delivery_date->format('Y'),
+//                'net_weight' => $delivery->net_weight,
+//                'net_price' => $delivery->net_price,
+//                'margin' => $delivery->margin,
+//                'gross_total' => $delivery->gross_total,
+//                'net_total' => $delivery->net_total,
+//            ];
+//        })->collect();
+//
+//    $report = array();
+//    if($params['type'] === 'Period'){
+//        $report = $deliveries;
+//    }
+//    if($params['type'] === 'Monthly'){
+//        $now = Carbon::create($params['year'], $params['month'], 01);
+//        $periods = CarbonPeriod::create($now->startOfMonth()->toDateString(), $now->endOfMonth()->toDateString());
+//
+//        $temp = array();
+//        foreach ($periods as $key => $period) {
+//            $month = $period->format('m');
+//            $year = $period->format('Y');
+//            $day = $period->format('d');
+//
+//            $where = $deliveries->where('year', (int)$year)->where('month', (int)$month)->where('day', (int)$day);
+//            $count = $where->count();
+//            $net_weight = $where->sum('net_weight');
+//            $net_price = $where->avg('net_price');
+//            $margin = $where->avg('margin');
+//            $gross_total = $where->sum('gross_total');
+//            $net_total = $where->sum('net_total');
+//
+//
+//            if($count > 0){
+//                $temp[$key]['year'] = (int)$year;
+//                $temp[$key]['month'] = (int)$month;
+//                $temp[$key]['day'] = (int)$day;
+//                $temp[$key]['period'] = $period->format('d F Y');
+//                $temp[$key]['net_weight'] = $net_weight;
+//                $temp[$key]['net_price'] = $net_price;
+//                $temp[$key]['margin'] = $margin;
+//                $temp[$key]['gross_total'] = $gross_total;
+//                $temp[$key]['net_total'] = $net_total;
+//                $temp[$key]['count'] = $count;
+//            }
+//
+//        }
+//        $report = collect($temp)->values();
+//
+//    }
+//
+//    if($params['type'] === 'Annual'){
+//        $cur_month = Carbon::now()->format('m');
+//        $current = Carbon::create($params['year'], 1, 1);
+//
+//        $temp = array();
+//        for ($key = 1; $key <= $cur_month; $key++) {
+//            $month = $current->format('m');
+//            $year = $current->format('Y');
+//            $day = $current->format('d');
+//
+//            $where = $deliveries->where('year', (int)$year)->where('month', (int)$month);
+//            $count = $where->count();
+//            $net_weight = $where->sum('net_weight');
+//            $net_price = $where->avg('net_price');
+//            $margin = $where->avg('margin');
+//            $gross_total = $where->sum('gross_total');
+//            $net_total = $where->sum('net_total');
+//
+//            $temp[$key]['day'] = $day;
+//            $temp[$key]['month'] = $month;
+//            $temp[$key]['year'] = $year;
+//            $temp[$key]['period'] = $current->format('F Y');
+//            $temp[$key]['net_weight'] = $net_weight;
+//            $temp[$key]['net_price'] = $net_price;
+//            $temp[$key]['margin'] = $margin;
+//            $temp[$key]['gross_total'] = $gross_total;
+//            $temp[$key]['net_total'] = $net_total;
+//            $temp[$key]['count'] = $count;
+//
+//
+//            $current->addMonth();
+//        }
+//        $report = collect($temp)->values();
+//
+//    }
+//    return $report;
 
 //    $params = array();
 //    $params['type'] = 'Annual';

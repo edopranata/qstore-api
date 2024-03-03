@@ -124,7 +124,7 @@ class CarRecapReportController extends Controller
             }
         } else {
             $cur_month = Carbon::now()->format('m');
-            $current = Carbon::create(2024, 1, 1);
+            $current = Carbon::create($data['year'], 1, 1);
 
             for ($key = 1; $key <= $cur_month; $key++) {
                 $month = $current->format('m');

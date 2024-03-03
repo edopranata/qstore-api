@@ -4,6 +4,8 @@ use App\Http\Controllers\Api\Car\CarController;
 use App\Http\Controllers\Api\Car\DriverController;
 use App\Http\Controllers\Api\DeliveryOrder\CustomerController;
 use App\Http\Controllers\Api\DeliveryOrder\DeliveryOrderController;
+use App\Http\Controllers\Api\DeliveryOrder\DORecapReportController;
+use App\Http\Controllers\Api\DeliveryOrder\DOReportController;
 use App\Http\Controllers\Api\Invoice\InvoiceDataController;
 use App\Http\Controllers\Api\Invoice\InvoiceDeliveryOrderController;
 use App\Http\Controllers\Api\Loan\LoanController;
@@ -26,6 +28,8 @@ use App\Http\Controllers\Api\Trading\InvoiceFarmersController;
 use App\Http\Controllers\Api\Trading\TradingController;
 use App\Http\Controllers\Api\Trading\TradingCostController;
 use App\Http\Controllers\Api\Trading\TradingDetailsController;
+use App\Http\Controllers\Api\Trading\TradingRecapReportController;
+use App\Http\Controllers\Api\Trading\TradingReportController;
 use Illuminate\Support\Facades\Route;
 
 Route::group(['prefix' => 'management', 'as' => 'management.'], function () {
@@ -169,6 +173,16 @@ Route::group(['prefix' => 'jualBeliSawit', 'as' => 'jualBeliSawit.'], function (
         Route::get('/', [DataInvoiceFarmerController::class, 'index'])->name('index')->middleware('permission:app.jualBeliSawit.dataInvoicePetani.index');
         Route::get('/{invoice:invoice_number}/print', [DataInvoiceFarmerController::class, 'show'])->name('printInvoice')->middleware('permission:app.jualBeliSawit.dataInvoicePetani.printInvoice');
     });
+
+    Route::group(['prefix' => 'laporan', 'as' => 'laporan.'], function () {
+        Route::get('/', [ReportController::class, 'index'])->name('index')->middleware('permission:permission:app.jualBeliSawit.laporan.index');
+
+        Route::match(['get', 'post'], '/jualBeliSawit', TradingReportController::class)->name('jualBeliSawit')->middleware('permission:app.jualBeliSawit.laporan.jualBeliSawit');
+        Route::match(['get', 'post'], '/printJualBeliSawit', TradingReportController::class)->name('printJualBeliSawit')->middleware('permission:app.jualBeliSawit.laporan.printJualBeliSawit');
+
+        Route::match(['get', 'post'], '/rekapituliasiJualBeliSawit', TradingRecapReportController::class)->name('rekapituliasiJualBeliSawit')->middleware('permission:app.jualBeliSawit.laporan.rekapituliasiJualBeliSawit');
+        Route::match(['get', 'post'], '/printRekapituliasiJualBeliSawit', TradingRecapReportController::class)->name('printRekapituliasiJualBeliSawit')->middleware('permission:app.jualBeliSawit.laporan.printRekapituliasiJualBeliSawit');
+    });
 });
 
 Route::group(['prefix' => 'deliveryOrder', 'as' => 'deliveryOrder.'], function (){
@@ -205,6 +219,16 @@ Route::group(['prefix' => 'deliveryOrder', 'as' => 'deliveryOrder.'], function (
     Route::group(['prefix' => 'dataInvoicePengepul', 'as' => 'dataInvoicePengepul.'], function () {
         Route::get('/', [DataInvoiceCollectorController::class, 'index'])->name('index')->middleware('permission:app.deliveryOrder.dataInvoicePengepul.index');
         Route::get('/{invoice:invoice_number}/print', [DataInvoiceCollectorController::class, 'show'])->name('printInvoice')->middleware('permission:app.deliveryOrder.dataInvoicePengepul.printInvoice');
+    });
+
+    Route::group(['prefix' => 'laporan', 'as' => 'laporan.'], function () {
+        Route::get('/', [ReportController::class, 'index'])->name('index')->middleware('permission:permission:app.deliveryOrder.laporan.index');
+
+        Route::match(['get', 'post'], '/deliveryOrder', DOReportController::class)->name('deliveryOrder')->middleware('permission:app.deliveryOrder.laporan.deliveryOrder');
+        Route::match(['get', 'post'], '/printDeliveryOrder', DOReportController::class)->name('printdeliveryOrder')->middleware('permission:app.deliveryOrder.laporan.printdeliveryOrder');
+
+        Route::match(['get', 'post'], '/rekapitulasiDO', DORecapReportController::class)->name('rekapitulasiDO')->middleware('permission:app.deliveryOrder.laporan.rekapitulasiDO');
+        Route::match(['get', 'post'], '/printRekapitulasiDO', DORecapReportController::class)->name('printRekapitulasiDO')->middleware('permission:app.deliveryOrder.laporan.printRekapitulasiDO');
     });
 });
 

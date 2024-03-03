@@ -68,6 +68,12 @@ Artisan::command('app:fresh-install', function () {
         '--force' => true,
         '--class' => 'SampleTransaction'
     ]);
+
+    $this->info("Update sample trading factory");
+    Artisan::call('db:seed', [
+        '--force' => true,
+        '--class' => 'TradingFactoryUpdate'
+    ]);
 })->purpose('Migrate db Installation and dump dummy data');
 
 Artisan::command('app:sample-transaction', function () {

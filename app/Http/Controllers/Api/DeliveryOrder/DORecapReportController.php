@@ -1,0 +1,187 @@
+<?php
+
+namespace App\Http\Controllers\Api\DeliveryOrder;
+
+use App\Http\Controllers\Controller;
+use App\Models\DeliveryOrder;
+use Carbon\Carbon;
+use Carbon\CarbonPeriod;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Validator;
+
+class DORecapReportController extends Controller
+{
+    /**
+     * Handle the incoming request.
+     */
+    public function __invoke(Request $request)
+    {
+        switch ($request->get('type')) {
+            case 'Monthly':
+                return $this->monthly($request);
+
+            case 'Annual':
+                return $this->annual($request);
+            default:
+                abort(301, 'Invalid parameter');
+        }
+    }
+
+
+    private function monthly(Request $request): JsonResponse|array|Collection
+    {
+        $validator = Validator::make($request->only([
+            'monthly'
+        ]), [
+            'monthly' => ['required', 'date_format:Y/m'],
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['status' => false, 'errors' => $validator->errors()->toArray()], 422);
+        }
+
+        $date = str($request->monthly)->split('#/#');
+
+        $params = array();
+        $params['year'] = $date[0];
+        $params['month'] = $date[1];
+        $params['type'] = $request->type;
+        $collection = $this->detail_report($params);
+        return $this->report($params, $collection);
+    }
+
+    private function annual(Request $request): JsonResponse|array|Collection
+    {
+        $validator = Validator::make($request->only([
+            'annual'
+        ]), [
+            'annual' => ['required', 'date_format:Y'],
+
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['status' => false, 'errors' => $validator->errors()->toArray()], 422);
+        }
+
+        $params = array();
+        $params['year'] = $request->annual;
+        $params['type'] = $request->type;
+
+        $collection = $this->detail_report($params);
+
+        return $this->report($params, $collection);
+
+    }
+
+    private function report(array $params, Collection $collection): array|Collection
+    {
+
+        $report = array();
+        if($params['type'] === 'Monthly'){
+            $now = Carbon::create($params['year'], $params['month'], 01);
+            $periods = CarbonPeriod::create($now->startOfMonth()->toDateString(), $now->endOfMonth()->toDateString());
+
+            $temp = array();
+            foreach ($periods as $key => $period) {
+                $month = $period->format('m');
+                $year = $period->format('Y');
+                $day = $period->format('d');
+
+                $where = $collection->where('year', (int)$year)->where('month', (int)$month)->where('day', (int)$day);
+                $count = $where->count();
+                $net_weight = $where->sum('net_weight');
+                $net_price = $where->avg('net_price');
+                $margin = $where->avg('margin');
+                $gross_total = $where->sum('gross_total');
+                $net_total = $where->sum('net_total');
+
+
+                if($count > 0){
+                    $temp[$key]['year'] = (int)$year;
+                    $temp[$key]['month'] = (int)$month;
+                    $temp[$key]['day'] = (int)$day;
+                    $temp[$key]['period'] = $period->format('d F Y');
+                    $temp[$key]['net_weight'] = $net_weight;
+                    $temp[$key]['net_price'] = $net_price;
+                    $temp[$key]['margin'] = $margin;
+                    $temp[$key]['gross_total'] = $gross_total;
+                    $temp[$key]['net_total'] = $net_total;
+                    $temp[$key]['count'] = $count;
+                }
+
+            }
+            $report = collect($temp)->values();
+        }
+
+        if($params['type'] === 'Annual'){
+            $current = Carbon::create($params['year'], 1, 1);
+
+            $temp = array();
+            for ($key = 1; $key <= 12; $key++) {
+                $month = $current->format('m');
+                $year = $current->format('Y');
+                $day = $current->format('d');
+
+                $where = $collection->where('year', (int)$year)->where('month', (int)$month);
+                $count = $where->count();
+                $net_weight = $where->sum('net_weight');
+                $net_price = $where->avg('net_price');
+                $margin = $where->avg('margin');
+                $gross_total = $where->sum('gross_total');
+                $net_total = $where->sum('net_total');
+
+                if($count > 0){
+                    $temp[$key]['day'] = $day;
+                    $temp[$key]['month'] = $month;
+                    $temp[$key]['year'] = $year;
+                    $temp[$key]['period'] = $current->format('F Y');
+                    $temp[$key]['net_weight'] = $net_weight;
+                    $temp[$key]['net_price'] = $net_price;
+                    $temp[$key]['margin'] = $margin;
+                    $temp[$key]['gross_total'] = $gross_total;
+                    $temp[$key]['net_total'] = $net_total;
+                    $temp[$key]['count'] = $count;
+                }
+
+                $current->addMonth();
+            }
+            $report = collect($temp)->values();
+        }
+
+        return $report;
+    }
+
+    private function detail_report(array $params): Collection
+    {
+        return DeliveryOrder::query()
+            ->with('customer')
+            ->when(Arr::exists($params, 'month'), function ($builder) use ($params) {
+                $builder->whereMonth('delivery_date', $params['month']);
+            })
+            ->when(Arr::exists($params, 'year'), function ($builder) use ($params) {
+                $builder->whereYear('delivery_date', $params['year']);
+            })
+            ->get()->map(function ($delivery) use ($params) {
+                $type = $delivery->customer_type ? str($delivery->customer_type)->split('/\\\\/')->last() : '';
+                $customer = $delivery->customer?->name;
+                return [
+                    'id' => $delivery->id,
+                    'params' => $params,
+                    'type' => $type,
+                    'customer' => $customer,
+                    'date' => $delivery->delivery_date->format('Y-m-d H:i:s'),
+                    'day' => (int)$delivery->delivery_date->format('d'),
+                    'month' =>(int)$delivery->delivery_date->format('m'),
+                    'year' => (int)$delivery->delivery_date->format('Y'),
+                    'net_weight' => $delivery->net_weight,
+                    'net_price' => $delivery->net_price,
+                    'margin' => $delivery->margin,
+                    'gross_total' => $delivery->gross_total,
+                    'net_total' => $delivery->net_total,
+                ];
+            })->collect();
+    }
+}
