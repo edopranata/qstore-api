@@ -50,10 +50,17 @@ class LoanController extends Controller
                 'details' => $details ?? null
             ], 201);
         } else {
-            $drivers = Driver::query()->withWhereHas('loan')->select('id', 'name', 'phone', DB::raw('"driver" as type'))->get();
-            $customers = Customer::query()->withWhereHas('loan')->select('id', 'name', 'phone', 'type')->get();
+            $customers = null;
+            if($request->routeIs('app.mobil.pinjamanBaru.simpanPinjamanBaru')) {
+                $customers = Driver::query()->withWhereHas('loan')->select('id', 'name', 'phone', DB::raw('"driver" as type'))->get();
+            } else{
+                $customers = Customer::query()->withWhereHas('loan')->select('id', 'name', 'phone', 'type')->get();
+
+            }
+//            $drivers = Driver::query()->withWhereHas('loan')->select('id', 'name', 'phone', DB::raw('"driver" as type'))->get();
+//            $customers = Customer::query()->withWhereHas('loan')->select('id', 'name', 'phone', 'type')->get();
             return response()->json([
-                'customers' => $drivers->merge($customers),
+                'customers' => $customers,
             ], 201);
         }
 
