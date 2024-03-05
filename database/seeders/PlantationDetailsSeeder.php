@@ -32,27 +32,35 @@ class PlantationDetailsSeeder extends Seeder
 
             $price = $one[array_rand($one)] + $two[array_rand($two)];
             $trade_cost = 270000;
+            $car_transport = 180000;
             $net_weight = rand(10, 20) * $details->sum('trees');
 
             $driver_fee = 20;
             $car_fee = 80;
+            $loader_fee = 35;
 
             $driver_cost = $driver_fee * $net_weight;
             $car_cost = $car_fee * $net_weight;
+            $loader_cost = $loader_fee * $net_weight;
 
             $net_total = $price * $net_weight;
 
-            $gross_total = $trade_cost + $driver_cost + $car_cost;
+            $gross_total = $trade_cost + $car_transport + $driver_cost + $car_cost + $loader_cost;
 
             $net_income = $net_total - $gross_total;
             $plantation->update([
                 'trade_cost' => $trade_cost,
                 'net_weight' => $net_weight,
                 'net_price' => $price,
+                'loader_fee' => $loader_fee,
+                'car_fee' => $car_fee,
+                'car_transport' => $car_transport,
+                'gross_total' => $gross_total,
+                'driver_fee' => $driver_fee,
                 'net_total' => $net_total,
+                'net_income' => $net_income,
                 'wide_total' => $details->sum('wide'),
                 'trees_total' => $details->sum('trees'),
-                'net_income' => $net_income
             ]);
             $margin = 25;
             $net_price = $plantation->net_price + $margin;

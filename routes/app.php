@@ -16,10 +16,9 @@ use App\Http\Controllers\Api\Plantation\AreaController;
 use App\Http\Controllers\Api\Plantation\LandController;
 use App\Http\Controllers\Api\Plantation\PlantationController;
 use App\Http\Controllers\Api\Plantation\PlantationCostController;
+use App\Http\Controllers\Api\Plantation\PlantationReportController;
 use App\Http\Controllers\Api\Report\Car\CarRecapReportController;
 use App\Http\Controllers\Api\Report\Car\CarReportController;
-use App\Http\Controllers\Api\Report\Plantation\LandReportController;
-use App\Http\Controllers\Api\Report\Plantation\PlantationReportController;
 use App\Http\Controllers\Api\Report\ReportController;
 use App\Http\Controllers\Api\Trading\DataInvoiceCollectorController;
 use App\Http\Controllers\Api\Trading\DataInvoiceFarmerController;
@@ -60,7 +59,7 @@ Route::group(['prefix' => 'management', 'as' => 'management.'], function () {
     });
 });
 
-Route::group(['prefix' => 'mobil', 'as' => 'mobil.'], function (){
+Route::group(['prefix' => 'mobil', 'as' => 'mobil.'], function () {
     Route::group(['prefix' => 'dataMobil', 'as' => 'dataMobil.'], function () {
         Route::get('', [CarController::class, 'index'])->name('index')->middleware('permission:app.mobil.dataMobil.index');
         Route::post('/', [CarController::class, 'store'])->name('simpanDataMobil')->middleware('permission:app.mobil.dataMobil.simpanDataMobil');
@@ -93,9 +92,20 @@ Route::group(['prefix' => 'mobil', 'as' => 'mobil.'], function (){
         Route::delete('/{cost}', [\App\Http\Controllers\Api\Car\CarCostController::class, 'destroy'])->name('hapusBiayaMobil')->middleware('permission:app.mobil.biayaMobil.hapusBiayaMobil');
 
     });
+
+    Route::group(['prefix' => 'laporan', 'as' => 'laporan.'], function () {
+        Route::get('/', [ReportController::class, 'index'])->name('index')->middleware('permission:app.mobil.laporan.index');
+
+        Route::match(['get', 'post'], '/penghasilanMobil', CarReportController::class)->name('penghasilanMobil')->middleware('permission:app.mobil.laporan.penghasilanMobil');
+        Route::match(['get', 'post'], '/printPenghasilanMobil', CarReportController::class)->name('printPenghasilanMobil')->middleware('permission:app.mobil.laporan.printPenghasilanMobil');
+
+        Route::match(['get', 'post'], '/rekapPenghasilanMobil', CarRecapReportController::class)->name('rekapPenghasilanMobil')->middleware('permission:app.mobil.laporan.rekapPenghasilanMobil');
+        Route::match(['get', 'post'], '/printRekapPenghasilanMobil', CarRecapReportController::class)->name('printRekapPenghasilanMobil')->middleware('permission:app.mobil.laporan.printRekapPenghasilanMobil');
+    });
+
 });
 
-Route::group(['prefix' => 'perkebunan', 'as' => 'perkebunan.'], function (){
+Route::group(['prefix' => 'perkebunan', 'as' => 'perkebunan.'], function () {
     Route::group(['prefix' => 'wilayah', 'as' => 'wilayah.'], function () {
         Route::get('', [AreaController::class, 'index'])->name('index')->middleware('permission:app.perkebunan.wilayah.index');
         Route::post('/', [AreaController::class, 'store'])->name('simpanDataWilayah')->middleware('permission:app.perkebunan.wilayah.simpanDataWilayah');
@@ -122,9 +132,19 @@ Route::group(['prefix' => 'perkebunan', 'as' => 'perkebunan.'], function (){
         Route::patch('/{cost}', [PlantationCostController::class, 'update'])->name('ubahBiayaKebun')->middleware('permission:app.perkebunan.biayaKebun.ubahBiayaKebun');
         Route::delete('/{cost}', [PlantationCostController::class, 'destroy'])->name('hapusBiayaKebun')->middleware('permission:app.perkebunan.biayaKebun.hapusBiayaKebun');
     });
+
+    Route::group(['prefix' => 'laporan', 'as' => 'laporan.'], function () {
+        Route::get('/', [ReportController::class, 'index'])->name('index')->middleware('permission:app.perkebunan.laporan.index');
+
+        Route::match(['get', 'post'], '/perkebunan', PlantationReportController::class)->name('perkebunan')->middleware('permission:app.perkebunan.laporan.perkebunan');
+        Route::match(['get', 'post'], '/printPerkebunan', PlantationReportController::class)->name('printPerkebunan')->middleware('permission:app.perkebunan.laporan.printPerkebunan');
+
+        Route::match(['get', 'post'], '/rekapituliasiPerkebunan', \App\Http\Controllers\Api\Plantation\PlantationRecapReportController::class)->name('rekapituliasiPerkebunan')->middleware('permission:app.perkebunan.laporan.rekapituliasiPerkebunan');
+        Route::match(['get', 'post'], '/printRekapituliasiPerkebunan', \App\Http\Controllers\Api\Plantation\PlantationRecapReportController::class)->name('printRekapituliasiPerkebunan')->middleware('permission:app.perkebunan.laporan.printRekapituliasiPerkebunan');
+    });
 });
 
-Route::group(['prefix' => 'jualBeliSawit', 'as' => 'jualBeliSawit.'], function (){
+Route::group(['prefix' => 'jualBeliSawit', 'as' => 'jualBeliSawit.'], function () {
     Route::group(['prefix' => 'dataPetani', 'as' => 'dataPetani.'], function () {
         Route::get('', [FarmerController::class, 'index'])->name('index')->middleware('permission:app.jualBeliSawit.dataPetani.index');
         Route::post('/', [FarmerController::class, 'store'])->name('simpanDataPetani')->middleware('permission:app.jualBeliSawit.dataPetani.simpanDataPetani');
@@ -185,7 +205,7 @@ Route::group(['prefix' => 'jualBeliSawit', 'as' => 'jualBeliSawit.'], function (
     });
 });
 
-Route::group(['prefix' => 'deliveryOrder', 'as' => 'deliveryOrder.'], function (){
+Route::group(['prefix' => 'deliveryOrder', 'as' => 'deliveryOrder.'], function () {
     Route::group(['prefix' => 'dataPengepul', 'as' => 'dataPengepul.'], function () {
         Route::get('', [CustomerController::class, 'index'])->name('index')->middleware('permission:app.deliveryOrder.dataPengepul.index');
         Route::post('/', [CustomerController::class, 'store'])->name('simpanDataPengepul')->middleware('permission:app.deliveryOrder.dataPengepul.simpanDataPengepul');
@@ -231,14 +251,6 @@ Route::group(['prefix' => 'deliveryOrder', 'as' => 'deliveryOrder.'], function (
         Route::match(['get', 'post'], '/printRekapitulasiDO', DORecapReportController::class)->name('printRekapitulasiDO')->middleware('permission:app.deliveryOrder.laporan.printRekapitulasiDO');
     });
 });
-
-
-
-
-
-
-
-
 
 
 //Route::group(['prefix' => 'masterData', 'as' => 'masterData.'], function () {
@@ -352,27 +364,27 @@ Route::group(['prefix' => 'invoice', 'as' => 'invoice.'], function () {
 //    });
 });
 
-Route::group(['prefix' => 'laporan', 'as' => 'laporan.'], function () {
-    Route::group(['prefix' => 'dataLaporan', 'as' => 'dataLaporan.'], function () {
-        Route::get('/', [ReportController::class, 'index'])->name('index')->middleware('permission:app.laporan.dataLaporan.index');
-
-        Route::get('/hasilKebun', PlantationReportController::class)->name('hasilKebun')->middleware('permission:app.laporan.dataLaporan.hasilKebun');
-        Route::get('/printHasilKebun', PlantationReportController::class)->name('printHasilKebun')->middleware('permission:app.laporan.dataLaporan.printHasilKebun');
-
-        Route::match(['get', 'post'], '/hasilLahan', LandReportController::class)->name('hasilLahan')->middleware('permission:app.laporan.dataLaporan.hasilLahan');
-        Route::match(['get', 'post'], '/printHasilLahan', LandReportController::class)->name('printHasilLahan')->middleware('permission:app.laporan.dataLaporan.printHasilLahan');
-
+//Route::group(['prefix' => 'laporan', 'as' => 'laporan.'], function () {
+//    Route::group(['prefix' => 'dataLaporan', 'as' => 'dataLaporan.'], function () {
+//        Route::get('/', [ReportController::class, 'index'])->name('index')->middleware('permission:app.laporan.dataLaporan.index');
+//
+//        Route::get('/hasilKebun', ReportPlantationController::class)->name('hasilKebun')->middleware('permission:app.laporan.dataLaporan.hasilKebun');
+//        Route::get('/printHasilKebun', ReportPlantationController::class)->name('printHasilKebun')->middleware('permission:app.laporan.dataLaporan.printHasilKebun');
+//
+//        Route::match(['get', 'post'], '/hasilLahan', LandReportController::class)->name('hasilLahan')->middleware('permission:app.laporan.dataLaporan.hasilLahan');
+//        Route::match(['get', 'post'], '/printHasilLahan', LandReportController::class)->name('printHasilLahan')->middleware('permission:app.laporan.dataLaporan.printHasilLahan');
+//
 //        Route::get('/hasilLahanPerArea', [AreaReportController::class, 'index'])->name('hasilLahanPerArea'); //->middleware('permission:app.laporan.dataLaporan.hasilLahanPerArea');
 //        Route::get('/printHasilLahanPerArea', [AreaReportController::class, 'index'])->name('printHasilLahanPerArea'); //->middleware('permission:app.laporan.dataLaporan.printHasilLahanPerArea');
-
-        Route::match(['get', 'post'], '/penghasilanMobil', CarReportController::class)->name('penghasilanMobil')->middleware('permission:app.laporan.dataLaporan.penghasilanMobil');
-        Route::match(['get', 'post'], '/printPenghasilanMobil', CarReportController::class)->name('printPenghasilanMobil')->middleware('permission:app.laporan.dataLaporan.printPenghasilanMobil');
-
-        Route::match(['get', 'post'], '/rekapPenghasilanMobil', CarRecapReportController::class)->name('rekapPenghasilanMobil'); //->middleware('permission:app.laporan.dataLaporan.rekapPenghasilanMobil');
-        Route::match(['get', 'post'], '/printRekapPenghasilanMobil', CarRecapReportController::class)->name('printRekapPenghasilanMobil'); //->middleware('permission:app.laporan.dataLaporan.printRekapPenghasilanMobil');
-
-    });
-
-});
+//
+//        Route::match(['get', 'post'], '/penghasilanMobil', CarReportController::class)->name('penghasilanMobil')->middleware('permission:app.laporan.dataLaporan.penghasilanMobil');
+//        Route::match(['get', 'post'], '/printPenghasilanMobil', CarReportController::class)->name('printPenghasilanMobil')->middleware('permission:app.laporan.dataLaporan.printPenghasilanMobil');
+//
+//        Route::match(['get', 'post'], '/rekapPenghasilanMobil', CarRecapReportController::class)->name('rekapPenghasilanMobil'); //->middleware('permission:app.laporan.dataLaporan.rekapPenghasilanMobil');
+//        Route::match(['get', 'post'], '/printRekapPenghasilanMobil', CarRecapReportController::class)->name('printRekapPenghasilanMobil'); //->middleware('permission:app.laporan.dataLaporan.printRekapPenghasilanMobil');
+//
+//    });
+//
+//});
 
 

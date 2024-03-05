@@ -50,7 +50,7 @@ class DriverController extends Controller
                 'address',
             ]), [
                 'name' => 'required|string|min:3|max:30',
-                'phone' => 'required|string|max:20|unique:drivers,phone',
+                'phone' => 'required|string|max:20',
             ]);
 
             if ($validator->fails()) {

@@ -57,11 +57,11 @@ Artisan::command('app:fresh-install', function () {
         '--class' => 'SampleCostSeeder'
     ]);
 
-    $this->info("Migrating sample loan data");
-    Artisan::call('db:seed', [
-        '--force' => true,
-        '--class' => 'SampleLoan'
-    ]);
+//    $this->info("Migrating sample loan data");
+//    Artisan::call('db:seed', [
+//        '--force' => true,
+//        '--class' => 'SampleLoan'
+//    ]);
 
     $this->info("Migrating sample cost transaction");
     Artisan::call('db:seed', [

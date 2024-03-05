@@ -11,7 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
 
-class PlantationReportController extends Controller
+class ReportPlantationController extends Controller
 {
     public function __invoke(Request $request)
     {
