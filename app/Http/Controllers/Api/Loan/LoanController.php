@@ -50,17 +50,10 @@ class LoanController extends Controller
                 'details' => $details ?? null
             ], 201);
         } else {
-            $customers = null;
-            if($request->routeIs('app.mobil.pinjamanBaru.simpanPinjamanBaru')) {
-                $customers = Driver::query()->withWhereHas('loan')->select('id', 'name', 'phone', DB::raw('"driver" as type'))->get();
-            } else{
-                $customers = Customer::query()->withWhereHas('loan')->select('id', 'name', 'phone', 'type')->get();
-
-            }
-//            $drivers = Driver::query()->withWhereHas('loan')->select('id', 'name', 'phone', DB::raw('"driver" as type'))->get();
-//            $customers = Customer::query()->withWhereHas('loan')->select('id', 'name', 'phone', 'type')->get();
+            $drivers = Driver::query()->withWhereHas('loan')->select('id', 'name', 'phone', DB::raw('"driver" as type'))->get();
+            $customers = Customer::query()->withWhereHas('loan')->select('id', 'name', 'phone', 'type')->get();
             return response()->json([
-                'customers' => $customers,
+                'customers' => $drivers->merge($customers),
             ], 201);
         }
 
@@ -156,10 +149,17 @@ class LoanController extends Controller
 
     public function create(Request $request): JsonResponse
     {
-        $drivers = Driver::query()->doesntHave('loan')->select('id', 'name', 'phone', DB::raw('"driver" as type'))->get();
-        $customers = Customer::query()->doesntHave('loan')->select('id', 'name', 'phone', 'type')->get();
+        $customers = null;
+        if($request->routeIs('app.mobil.pinjamanBaru.index')) {
+            $customers = Driver::query()->doesntHave('loan')->select('id', 'name', 'phone', DB::raw('"driver" as type'))->get();
+        } else{
+            $customers = Customer::query()->doesntHave('loan')->select('id', 'name', 'phone', 'type')->get();
+
+        }
+//        $drivers = Driver::query()->doesntHave('loan')->select('id', 'name', 'phone', DB::raw('"driver" as type'))->get();
+//        $customers = Customer::query()->doesntHave('loan')->select('id', 'name', 'phone', 'type')->get();
         return response()->json([
-            'customers' => $customers->merge($drivers),
+            'customers' => $customers,
         ], 201);
     }
 
