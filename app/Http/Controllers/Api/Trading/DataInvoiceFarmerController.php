@@ -16,10 +16,8 @@ class DataInvoiceFarmerController extends Controller
     public function index(Request $request): InvoiceCollection
     {
         $query = Invoice::query()
-            ->with('customer')
-            ->withWhereHas('detail_trades')
-            ->withWhereHas('loan_details');
-//            ->with(['loan_details', 'customer', 'detail_do', 'detail_trades']);
+            ->where('type', 'TR')
+            ->with(['customer','detail_trades', 'loan_details']);
 
         $data = $query->paginate($request->get('limit', 10));
 

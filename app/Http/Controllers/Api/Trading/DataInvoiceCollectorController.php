@@ -16,9 +16,8 @@ class DataInvoiceCollectorController extends Controller
     public function index(Request $request): InvoiceCollection
     {
         $query = Invoice::query()
-            ->with('customer')
-            ->withWhereHas('detail_do')
-            ->withWhereHas('loan_details');
+            ->where('type', 'DO')
+            ->with(['customer','detail_do', 'loan_details']);
 //            ->with(['loan_details', 'customer', 'detail_do', 'detail_trades']);
 
         $data = $query->paginate($request->get('limit', 10));

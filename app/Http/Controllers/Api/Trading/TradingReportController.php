@@ -21,6 +21,9 @@ class TradingReportController extends Controller
             case 'Period':
                 return $this->period($request);
 
+            case 'Daily':
+                return $this->daily($request);
+
             case 'Monthly':
                 return $this->monthly($request);
 
@@ -31,6 +34,22 @@ class TradingReportController extends Controller
         }
     }
 
+    private function daily(Request $request): JsonResponse|Collection
+    {
+        $validator = Validator::make($request->only([
+            'daily'
+        ]), [
+            'daily' => ['required', 'date'],
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['status' => false, 'errors' => $validator->errors()->toArray()], 422);
+        }
+
+        $params = collect($request->only(['daily']))->toArray();
+
+        return $this->detail_report($params);
+    }
 
     private function period(Request $request): JsonResponse|Collection
     {
@@ -48,7 +67,6 @@ class TradingReportController extends Controller
         $params = collect($request->only(['period_start','period_end']))->toArray();
 
         return $this->detail_report($params);
-
     }
 
     private function monthly(Request $request): JsonResponse|Collection
@@ -101,6 +119,9 @@ class TradingReportController extends Controller
             ->when(Arr::exists($params, 'period_end'), function ($builder) use ($params) {
                 $builder->whereDate('trade_date', '<=', $params['period_end']);
             })
+            ->when(Arr::has($params, 'daily'), function ($builder) use ($params) {
+                $builder->with('details.customer')->whereDate('trade_date', $params);
+            })
             ->when(Arr::has($params, 'month'), function ($builder) use ($params) {
                 $builder->whereMonth('trade_date', $params['month']);
             })
@@ -108,6 +129,8 @@ class TradingReportController extends Controller
                 $builder->whereYear('trade_date', $params['year']);
             })
             ->get()->map(function ($trade) use ($params) {
+                $details = Arr::has($params, 'daily') ? $trade->details : null;
+
                 return [
                     'id' => $trade->id,
                     'date' => $trade->trade_date->format('Y-m-d H:i:s'),
@@ -125,6 +148,7 @@ class TradingReportController extends Controller
                     'customer_total' => $trade->customer_total_price,
                     'customer_weight' => $trade->customer_total_weight,
                     'net_total' => $trade->net_income,
+                    'details' => $details
                 ];
             })->collect();
     }
