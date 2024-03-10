@@ -2,7 +2,6 @@
 
 use App\Models\Car;
 use App\Models\Driver;
-use App\Models\Loan;
 use Carbon\Carbon;
 use Carbon\CarbonPeriod;
 use Illuminate\Support\Arr;
@@ -206,24 +205,95 @@ Route::get('recap', function () {
 
 
 Route::get('tes', function () {
-    $loans = Loan::query()
-        ->with('person')
-        ->whereHasMorph('person', [Driver::class])
+    $params = array();
+    $params['type'] = 'Annual';
+    $params['year'] = 2024;
+//    $params['month'] = 02;
+//    $params['daily'] = '2024/02/01';
+
+    $loans = \App\Models\LoanDetails::query()
+        ->withWhereHas('loan', function ($builder) {
+            return $builder->whereHasMorph('person', [Driver::class]);
+        })
+        ->when(Arr::exists($params, 'period_start'), function ($builder) use ($params) {
+            $builder->whereDate('trade_date', '>=', $params['period_start']);
+        })
+        ->when(Arr::exists($params, 'period_end'), function ($builder) use ($params) {
+            $builder->whereDate('trade_date', '<=', $params['period_end']);
+        })
+        ->when(Arr::exists($params, 'year'), function ($builder) use ($params) {
+            $builder->whereYear('trade_date', $params['year']);
+        })
+        ->when(Arr::exists($params, 'month'), function ($builder) use ($params) {
+            $builder->whereMonth('trade_date', $params['month']);
+        })
         ->get()
         ->map(function ($loan) {
+            $trade_date = Carbon::parse($loan->trade_date);
             return [
-                'id' => $loan->id,
-                'person_type' => str($loan->person_type)->lower()->split('/\\\\/')->last(),
-                'person_id' => $loan->person_id,
-                'person_name' => $loan->person?->name,
-                'phone' => $loan->person?->phone,
-                'balance' => $loan->balance,
+                'trade_date' => $trade_date->format('d F Y'),
+                'day' => (int)$trade_date->format('d'),
+                'month' => (int)$trade_date->format('m'),
+                'year' => (int)$trade_date->format('Y'),
+                'debit' => max($loan->balance, 0),
+                'credit' => min($loan->balance, 0),
             ];
         });
 
+    return $loans;
+
+    $report = array();
+
+    if (Arr::exists($params, 'month')) {
+        $now = Carbon::create($params['year'], $params['month'], 01);
+        $periods = CarbonPeriod::create($now->startOfMonth()->toDateString(), $now->endOfMonth()->toDateString());
+
+        foreach ($periods as $key => $period) {
+            $month = $period->format('m');
+            $year = $period->format('Y');
+            $day = $period->format('d');
+            $count = collect($loans)->where('year', (int)$year)->where('month', (int)$month)->where('day', (int)$day)->count();
+            if ($count > 0) {
+                $report[$key]['year'] = (int)$year;
+                $report[$key]['month'] = (int)$month;
+                $report[$key]['day'] = (int)$day;
+                $report[$key]['period'] = $period->format('d F Y');
+                $report[$key]['count'] = collect($loans)->where('year', (int)$year)->where('month', (int)$month)->where('day', (int)$day)->count();
+                $report[$key]['wide'] = collect($loans)->where('year', (int)$year)->where('month', (int)$month)->where('day', (int)$day)->avg('wide');
+                $report[$key]['trees'] = collect($loans)->where('year', (int)$year)->where('month', (int)$month)->where('day', (int)$day)->avg('trees');
+                $report[$key]['weight_per_wide'] = collect($loans)->where('year', (int)$year)->where('month', (int)$month)->where('day', (int)$day)->sum('weight_per_wide');
+                $report[$key]['weight_per_tree'] = collect($loans)->where('year', (int)$year)->where('month', (int)$month)->where('day', (int)$day)->sum('weight_per_tree');
+                $report[$key]['net_price'] = collect($loans)->where('year', (int)$year)->where('month', (int)$month)->where('day', (int)$day)->avg('net_price');
+                $report[$key]['price_per_wide'] = collect($loans)->where('year', (int)$year)->where('month', (int)$month)->where('day', (int)$day)->avg('price_per_wide');
+                $report[$key]['price_per_tree'] = collect($loans)->where('year', (int)$year)->where('month', (int)$month)->where('day', (int)$day)->avg('price_per_tree');
+            }
+        }
+    } else {
+        $cur_month = Carbon::now()->format('m');
+        $current = Carbon::create($params['year'], 1, 1);
+
+        for ($key = 1; $key <= $cur_month; $key++) {
+            $month = $current->format('m');
+            $year = $current->format('Y');
+            $day = $current->format('d');
+
+            $count = collect($loans)->where('year', (int)$year)->where('month', (int)$month)->count();
+            if ($count > 0) {
+                $report[$key]['day'] = (int)$day;
+                $report[$key]['month'] = (int)$month;
+                $report[$key]['year'] = (int)$year;
+                $report[$key]['period'] = $current->format('F Y');
+                $report[$key]['count'] = collect($loans)->where('year', (int)$year)->where('month', (int)$month)->count();
+
+            }
+            $current->addMonth();
+        }
+    }
+
     return response()->json([
+        'data' => collect($report)->values()->toArray(),
         'loans' => $loans
-    ], 201);
+    ]);
 
 //    $deliveries = \App\Models\DeliveryOrder::query()
 //        ->with('customer')

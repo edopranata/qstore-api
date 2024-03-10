@@ -14,17 +14,20 @@ class LoanDetailsSeeder extends Seeder
     /**
      * Run the database seeds.
      */
+
+    private int $sequence;
     public function run(): void
     {
         $type = 'LN';
         $faker = Factory::create();
         $loans = Loan::query()->get();
         $trade_date = now();
-        $sequence = $this->getLastSequence($trade_date->format('Y'), $type);
+        $this->sequence = $this->getLastSequence($trade_date->format('Y'), $type);
 
+//        dd($this->sequence);
         foreach ($loans as $loan) {
-            $trade_date = now()->subDays(rand(10,30));
-            $invoice_number = 'MM'.$type. $trade_date->format('Y') . sprintf('%08d', $sequence);
+            $trade_date = now()->subDays(rand(5,10));
+            $invoice_number = 'MM'.$type. $trade_date->format('Y') . sprintf('%08d', $this->sequence);
             $trade_date = $trade_date->subDays(rand(10,30));
             $details = $loan->details()->create([
                 'trade_date' => $trade_date,
@@ -44,13 +47,13 @@ class LoanDetailsSeeder extends Seeder
                     'customer_type' => $loan->person_type,
                     'invoice_number' => $invoice_number,
                     'type' => $type,
-                    'sequence' => $sequence,
+                    'sequence' => $this->sequence,
                 ]);
 
             $invoice->loan()->create([
                 'loan_details_id'    => $details->id
             ]);
-            $sequence++;
+            $this->sequence++;
         }
     }
 }

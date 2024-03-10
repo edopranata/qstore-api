@@ -13,7 +13,7 @@ trait InvoiceTrait
             ->where('type', $type
             )
             ->whereYear('trade_date', $date->format('Y'))
-            ->latest()->first();
+            ->latest('id')->first();
         return $invoice ? ($invoice->sequence + 1) : 1;
 
     }

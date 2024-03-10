@@ -16,17 +16,16 @@ class LoanSeeder extends Seeder
     /**
      * Run the database seeds.
      */
+    private int $sequence = 1;
     public function run(): void
     {
         $type = 'LN';
 
         $faker = Factory::create();
-        $customers = Customer::query()->inRandomOrder()->take(rand(5, 15))->get();
-        $sequence = 1;
-        foreach ($customers as $customer) {
+        Customer::query()->inRandomOrder()->take(rand(5, 15))->get()->each(function ($customer) use ($faker, $type){
             $trade_date = now()->subDays(rand(2,15));
 
-            $invoice_number = 'MM'.$type. $trade_date->format('Y') . sprintf('%08d', $sequence);
+            $invoice_number = 'MM'.$type. $trade_date->format('Y') . sprintf('%08d', $this->sequence);
 
             $balance = $faker->randomElement([30000000, 20000000, 15000000, 50000000, 35000000]);
             $loan = Loan::query()->create([
@@ -49,22 +48,21 @@ class LoanSeeder extends Seeder
                     'customer_type' => get_class(new Customer()),
                     'invoice_number' => $invoice_number,
                     'type' => $type,
-                    'sequence' => $sequence,
+                    'sequence' => $this->sequence,
                 ]);
 
             $invoice->loan()->create([
                 'loan_details_id'    => $details->id
             ]);
-            $sequence++;
-        }
+            $this->sequence++;
+        });
 
 
 
-        $drivers = Driver::query()->inRandomOrder()->take(rand(3, 7))->get();
-        foreach ($drivers as $driver) {
+        Driver::query()->inRandomOrder()->take(rand(3, 7))->get()->each(function ($driver) use ($faker, $type){
             $trade_date = now()->subDays(rand(2,15));
 
-            $invoice_number = 'MM'.$type. $trade_date->format('Y') . sprintf('%08d', $sequence);
+            $invoice_number = 'MM'.$type. $trade_date->format('Y') . sprintf('%08d', $this->sequence);
 
             $balance = $faker->randomElement([30000000, 20000000, 15000000, 50000000, 35000000]);
             $loan = Loan::query()->create([
@@ -87,13 +85,13 @@ class LoanSeeder extends Seeder
                     'customer_type' => get_class(new Driver()),
                     'invoice_number' => $invoice_number,
                     'type' => $type,
-                    'sequence' => $sequence,
+                    'sequence' => $this->sequence,
                 ]);
 
             $invoice->loan()->create([
                 'loan_details_id'    => $details->id
             ]);
-            $sequence++;
-        }
+            $this->sequence++;
+        });
     }
 }

@@ -2,11 +2,14 @@
 
 use App\Http\Controllers\Api\Car\CarController;
 use App\Http\Controllers\Api\Car\DriverController;
+use App\Http\Controllers\Api\Car\LoanRecapReportController;
 use App\Http\Controllers\Api\Car\LoanReportController;
 use App\Http\Controllers\Api\DeliveryOrder\CustomerController;
 use App\Http\Controllers\Api\DeliveryOrder\DeliveryOrderController;
 use App\Http\Controllers\Api\DeliveryOrder\DORecapReportController;
 use App\Http\Controllers\Api\DeliveryOrder\DOReportController;
+use App\Http\Controllers\Api\DeliveryOrder\LoanRecapReportController as DOLoanRecapReportController;
+use App\Http\Controllers\Api\DeliveryOrder\LoanReportController as DOLoanReportController;
 use App\Http\Controllers\Api\Invoice\InvoiceDataController;
 use App\Http\Controllers\Api\Invoice\InvoiceDeliveryOrderController;
 use App\Http\Controllers\Api\Loan\LoanController;
@@ -25,6 +28,8 @@ use App\Http\Controllers\Api\Trading\DataInvoiceCollectorController;
 use App\Http\Controllers\Api\Trading\DataInvoiceFarmerController;
 use App\Http\Controllers\Api\Trading\FarmerController;
 use App\Http\Controllers\Api\Trading\InvoiceFarmersController;
+use App\Http\Controllers\Api\Trading\LoanRecapReportController as TradingLoanRecapReportController;
+use App\Http\Controllers\Api\Trading\LoanReportController as TradingLoanReportController;
 use App\Http\Controllers\Api\Trading\TradingController;
 use App\Http\Controllers\Api\Trading\TradingCostController;
 use App\Http\Controllers\Api\Trading\TradingDetailsController;
@@ -105,6 +110,9 @@ Route::group(['prefix' => 'mobil', 'as' => 'mobil.'], function () {
 
         Route::match(['get', 'post'], '/pinjamanSupir', LoanReportController::class)->name('pinjamanSupir')->middleware('permission:app.mobil.laporan.pinjamanSupir');
         Route::match(['get', 'post'], '/printPinjamanSupir', LoanReportController::class)->name('printPinjamanSupir')->middleware('permission:app.mobil.laporan.printPinjamanSupir');
+
+        Route::match(['get', 'post'], '/rekapPinjamanSupir', LoanRecapReportController::class)->name('rekapPinjamanSupir')->middleware('permission:app.mobil.laporan.rekapPinjamanSupir');
+        Route::match(['get', 'post'], '/printRekapPinjamanSupir', LoanRecapReportController::class)->name('printRekapPinjamanSupir')->middleware('permission:app.mobil.laporan.printRekapPinjamanSupir');
 
     });
 
@@ -207,6 +215,13 @@ Route::group(['prefix' => 'jualBeliSawit', 'as' => 'jualBeliSawit.'], function (
 
         Route::match(['get', 'post'], '/rekapituliasiJualBeliSawit', TradingRecapReportController::class)->name('rekapituliasiJualBeliSawit')->middleware('permission:app.jualBeliSawit.laporan.rekapituliasiJualBeliSawit');
         Route::match(['get', 'post'], '/printRekapituliasiJualBeliSawit', TradingRecapReportController::class)->name('printRekapituliasiJualBeliSawit')->middleware('permission:app.jualBeliSawit.laporan.printRekapituliasiJualBeliSawit');
+
+        Route::match(['get', 'post'], '/pinjamanPetani', TradingLoanReportController::class)->name('pinjamanPetani')->middleware('permission:app.jualBeliSawit.laporan.pinjamanPetani');
+        Route::match(['get', 'post'], '/printPinjamanPetani', TradingLoanReportController::class)->name('printPinjamanPetani')->middleware('permission:app.jualBeliSawit.laporan.printPinjamanPetani');
+
+        Route::match(['get', 'post'], '/rekapPinjamanPetani', TradingLoanRecapReportController::class)->name('rekapPinjamanPetani')->middleware('permission:app.jualBeliSawit.laporan.rekapPinjamanPetani');
+        Route::match(['get', 'post'], '/printRekapPinjamanPetani', TradingLoanRecapReportController::class)->name('printRekapPinjamanPetani')->middleware('permission:app.jualBeliSawit.laporan.printRekapPinjamanPetani');
+
     });
 });
 
@@ -254,6 +269,13 @@ Route::group(['prefix' => 'deliveryOrder', 'as' => 'deliveryOrder.'], function (
 
         Route::match(['get', 'post'], '/rekapitulasiDO', DORecapReportController::class)->name('rekapitulasiDO')->middleware('permission:app.deliveryOrder.laporan.rekapitulasiDO');
         Route::match(['get', 'post'], '/printRekapitulasiDO', DORecapReportController::class)->name('printRekapitulasiDO')->middleware('permission:app.deliveryOrder.laporan.printRekapitulasiDO');
+
+        Route::match(['get', 'post'], '/pinjamanPengepul', DOLoanReportController::class)->name('pinjamanPengepul')->middleware('permission:app.deliveryOrder.laporan.pinjamanPengepul');
+        Route::match(['get', 'post'], '/printPinjamanPengepul', DOLoanReportController::class)->name('printPinjamanPengepul')->middleware('permission:app.deliveryOrder.laporan.printPinjamanPengepul');
+
+        Route::match(['get', 'post'], '/rekapPinjamanPengepul', DOLoanRecapReportController::class)->name('rekapPinjamanPengepul')->middleware('permission:app.deliveryOrder.laporan.rekapPinjamanPengepul');
+        Route::match(['get', 'post'], '/printRekapPinjamanPengepul', DOLoanRecapReportController::class)->name('printRekapPinjamanPengepul')->middleware('permission:app.deliveryOrder.laporan.printRekapPinjamanPengepul');
+
     });
 });
 
