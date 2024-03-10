@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\Auth\ChangePasswordController;
 use App\Http\Controllers\Api\Auth\LogoutController;
+use App\Http\Controllers\Api\Setting\SettingController;
 use App\Http\Controllers\Api\User\UserGetController;
 use Illuminate\Support\Facades\Route;
 
@@ -18,6 +19,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::middleware('auth:sanctum')->post('user', UserGetController::class);
 Route::middleware('auth:sanctum')->post('change-password', ChangePasswordController::class);
+Route::middleware('auth:sanctum')->post('setting', SettingController::class);
 Route::middleware('auth:sanctum')->post('logout', LogoutController::class);
 
 
