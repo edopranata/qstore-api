@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\Car\CarController;
 use App\Http\Controllers\Api\Car\DriverController;
+use App\Http\Controllers\Api\Car\LoanReportController;
 use App\Http\Controllers\Api\DeliveryOrder\CustomerController;
 use App\Http\Controllers\Api\DeliveryOrder\DeliveryOrderController;
 use App\Http\Controllers\Api\DeliveryOrder\DORecapReportController;
@@ -101,6 +102,10 @@ Route::group(['prefix' => 'mobil', 'as' => 'mobil.'], function () {
 
         Route::match(['get', 'post'], '/rekapPenghasilanMobil', CarRecapReportController::class)->name('rekapPenghasilanMobil')->middleware('permission:app.mobil.laporan.rekapPenghasilanMobil');
         Route::match(['get', 'post'], '/printRekapPenghasilanMobil', CarRecapReportController::class)->name('printRekapPenghasilanMobil')->middleware('permission:app.mobil.laporan.printRekapPenghasilanMobil');
+
+        Route::match(['get', 'post'], '/pinjamanSupir', LoanReportController::class)->name('pinjamanSupir')->middleware('permission:app.mobil.laporan.pinjamanSupir');
+        Route::match(['get', 'post'], '/printPinjamanSupir', LoanReportController::class)->name('printPinjamanSupir')->middleware('permission:app.mobil.laporan.printPinjamanSupir');
+
     });
 
 });

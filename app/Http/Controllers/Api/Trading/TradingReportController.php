@@ -129,7 +129,7 @@ class TradingReportController extends Controller
                 $builder->whereYear('trade_date', $params['year']);
             })
             ->get()->map(function ($trade) use ($params) {
-                $details = Arr::has($params, 'daily') ? $trade->details : null;
+                $details = Arr::has($params, 'daily') ? $trade->details : [];
 
                 return [
                     'id' => $trade->id,

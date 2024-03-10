@@ -1,6 +1,8 @@
 <?php
 
 use App\Models\Car;
+use App\Models\Driver;
+use App\Models\Loan;
 use Carbon\Carbon;
 use Carbon\CarbonPeriod;
 use Illuminate\Support\Arr;
@@ -204,47 +206,24 @@ Route::get('recap', function () {
 
 
 Route::get('tes', function () {
-    $params = array();
-    $params['type'] = 'Annual';
-//    $params['period_start'] = now()->subMonths(2);
-//    $params['period_end'] = now();
-    $params['year'] = 2024;
-//    $params['month'] = 02;
-
-    $tradings = \App\Models\Trading::query()
-        ->whereNotNull('trade_status')
-        ->when(Arr::exists($params, 'period_start'), function ($builder) use ($params) {
-            $builder->whereDate('trade_date', '>=', $params['period_start']);
-        })
-        ->when(Arr::exists($params, 'period_end'), function ($builder) use ($params) {
-            $builder->whereDate('trade_date', '<=', $params['period_end']);
-        })
-        ->when(Arr::exists($params, 'month'), function ($builder) use ($params) {
-            $builder->whereMonth('trade_date', $params['month']);
-        })
-        ->when(Arr::exists($params, 'year'), function ($builder) use ($params) {
-            $builder->whereYear('trade_date', $params['year']);
-        })
-        ->get()->map(function ($trade) {
+    $loans = Loan::query()
+        ->with('person')
+        ->whereHasMorph('person', [Driver::class])
+        ->get()
+        ->map(function ($loan) {
             return [
-                'id' => $trade->id,
-                'date' => $trade->trade_date->format('Y-m-d H:i:s'),
-                'day' => (int)$trade->trade_date->format('d'),
-                'month' =>(int)$trade->trade_date->format('m'),
-                'year' => (int)$trade->trade_date->format('Y'),
-                'net_weight' => $trade->net_weight,
-                'net_price' => $trade->net_price,
-                'margin' => $trade->margin,
-                'gross_total' => $trade->gross_total,
-                'cost_total' => $trade->cost_total,
-                'customer_average' => $trade->customer_average_price,
-                'customer_total' => $trade->customer_total_price,
-                'customer_weight' => $trade->customer_total_weight,
-                'net_total' => $trade->net_income,
+                'id' => $loan->id,
+                'person_type' => str($loan->person_type)->lower()->split('/\\\\/')->last(),
+                'person_id' => $loan->person_id,
+                'person_name' => $loan->person?->name,
+                'phone' => $loan->person?->phone,
+                'balance' => $loan->balance,
             ];
-        })->collect();
+        });
 
-    return $tradings;
+    return response()->json([
+        'loans' => $loans
+    ], 201);
 
 //    $deliveries = \App\Models\DeliveryOrder::query()
 //        ->with('customer')
