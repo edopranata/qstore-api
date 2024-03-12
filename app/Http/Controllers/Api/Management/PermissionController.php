@@ -12,6 +12,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
 use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
 
 class PermissionController extends Controller
 {
@@ -83,12 +84,14 @@ class PermissionController extends Controller
                 Permission::query()->firstOrCreate([
                     'name' => $permission['name']
                 ], [
+                    'guard_name' => 'web',
                     'parent' => $permission['parent'],
                     'children' => $permission['children'],
                     'title' => \str($permission['title'])->replace('app', '')->trim()->ucfirst(),
                     'path' => $permission['path'],
                     'method' => $permission['method'],
                 ]);
+
 
                 $path = collect(\str($permission['name'])->explode('.'));
                 $menuParent = $path[1];
@@ -111,8 +114,12 @@ class PermissionController extends Controller
                     ]);
                 }
             }
+
+            $role = Role::query()->first();
+            $role->syncPermissions(collect($permissions)->pluck('name'));
+
             DB::commit();
-            return $this->list($request);
+            return $this->list();
 
 
         } catch (\Exception $exception) {
@@ -127,7 +134,7 @@ class PermissionController extends Controller
         }
     }
 
-    private function list(Request $request)
+    private function list()
     {
         $all = Permission::all();
         $parent = $all->unique('parent')->values();
