@@ -8,6 +8,8 @@ use App\Http\Controllers\Api\DeliveryOrder\CustomerController;
 use App\Http\Controllers\Api\DeliveryOrder\DeliveryOrderController;
 use App\Http\Controllers\Api\DeliveryOrder\DORecapReportController;
 use App\Http\Controllers\Api\DeliveryOrder\DOReportController;
+use App\Http\Controllers\Api\DeliveryOrder\DOReportPlantationController;
+use App\Http\Controllers\Api\DeliveryOrder\DOReportTradingController;
 use App\Http\Controllers\Api\DeliveryOrder\LoanRecapReportController as DOLoanRecapReportController;
 use App\Http\Controllers\Api\DeliveryOrder\LoanReportController as DOLoanReportController;
 use App\Http\Controllers\Api\Invoice\InvoiceDataController;
@@ -266,6 +268,12 @@ Route::group(['prefix' => 'deliveryOrder', 'as' => 'deliveryOrder.'], function (
 
         Route::match(['get', 'post'], '/deliveryOrder', DOReportController::class)->name('deliveryOrder')->middleware('permission:app.deliveryOrder.laporan.deliveryOrder');
         Route::match(['get', 'post'], '/printDeliveryOrder', DOReportController::class)->name('printdeliveryOrder')->middleware('permission:app.deliveryOrder.laporan.printdeliveryOrder');
+
+        Route::match(['get', 'post'], '/deliveryOrderPlantation', DOReportPlantationController::class)->name('deliveryOrderPerkebunan')->middleware('permission:app.deliveryOrder.laporan.deliveryOrderPerkebunan');
+        Route::match(['get', 'post'], '/printDeliveryOrderPlantation', DOReportPlantationController::class)->name('printdeliveryOrderPerkebunan')->middleware('permission:app.deliveryOrder.laporan.printdeliveryOrderPerkebunan');
+
+        Route::match(['get', 'post'], '/deliveryOrderTrading', DOReportTradingController::class)->name('deliveryOrderJualBeliSawit')->middleware('permission:app.deliveryOrder.laporan.deliveryOrderJualBeliSawit');
+        Route::match(['get', 'post'], '/printDeliveryOrderTrading', DOReportTradingController::class)->name('printdeliveryOrderJualBeliSawit')->middleware('permission:app.deliveryOrder.laporan.printdeliveryOrderJualBeliSawit');
 
         Route::match(['get', 'post'], '/rekapitulasiDO', DORecapReportController::class)->name('rekapitulasiDO')->middleware('permission:app.deliveryOrder.laporan.rekapitulasiDO');
         Route::match(['get', 'post'], '/printRekapitulasiDO', DORecapReportController::class)->name('printRekapitulasiDO')->middleware('permission:app.deliveryOrder.laporan.printRekapitulasiDO');

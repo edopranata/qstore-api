@@ -115,7 +115,7 @@ class PermissionController extends Controller
                 }
             }
 
-            $role = Role::query()->first();
+            $role = Role::query()->where('name', 'Administrator')->first();
             $role->syncPermissions(collect($permissions)->pluck('name'));
 
             DB::commit();

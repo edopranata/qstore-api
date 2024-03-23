@@ -95,7 +95,7 @@ class FarmerController extends Controller
                 'phone',
             ]), [
                 'name' => 'required|string|min:3|max:30',
-                'phone' => 'required|string|max:20|unique:customers,phone,' . $request->id,
+                'phone' => 'required|string|max:20',
             ]);
 
             if ($validator->fails()) {

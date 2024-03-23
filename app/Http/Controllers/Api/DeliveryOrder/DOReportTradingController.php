@@ -3,15 +3,15 @@
 namespace App\Http\Controllers\Api\DeliveryOrder;
 
 use App\Http\Controllers\Controller;
-use App\Models\Customer;
 use App\Models\DeliveryOrder;
+use App\Models\Trading;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Validator;
 
-class DOReportController extends Controller
+class DOReportTradingController extends Controller
 {
     /**
      * Handle the incoming request.
@@ -93,7 +93,7 @@ class DOReportController extends Controller
     private function detail_report(array $params): Collection
     {
         return DeliveryOrder::query()
-            ->whereHasMorph('customer', Customer::class)
+            ->whereHasMorph('customer', Trading::class)
             ->with('customer')
             ->when(Arr::exists($params, 'period_start'), function ($builder) use ($params) {
                 $builder->whereDate('delivery_date', '>=', $params['period_start']);

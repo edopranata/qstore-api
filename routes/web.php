@@ -1,7 +1,9 @@
 <?php
 
+use App\Http\Resources\Invoice\InvoiceCollection;
 use App\Models\Car;
 use App\Models\Driver;
+use App\Models\Invoice;
 use Carbon\Carbon;
 use Carbon\CarbonPeriod;
 use Illuminate\Support\Arr;
@@ -204,7 +206,16 @@ Route::get('recap', function () {
 });
 
 
-Route::get('tes', function () {
+Route::get('tes', function (\Illuminate\Http\Request $request) {
+
+
+    $query = Invoice::query()->with(['loan_details', 'customer', 'detail_do', 'detail_trades']);
+
+    $data = $query->paginate($request->get('limit', 10));
+
+    return new InvoiceCollection($data);
+
+
     $params = array();
     $params['type'] = 'Annual';
     $params['year'] = 2024;
